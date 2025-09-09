@@ -2,6 +2,10 @@
 
 An application for creating, managing, and sharing animated diagrams generated from Mermaid.js code.
 
+## Repository
+
+GitHub Repository: [https://github.com/DonnyRZ/fucDiagram](https://github.com/DonnyRZ/fucDiagram)
+
 ## Description
 
 Animated Diagrams is a web-based tool that allows users to create, edit, and visualize diagrams using Mermaid.js syntax. The application provides a user-friendly interface for designing flowcharts, sequence diagrams, class diagrams, and other diagram types supported by Mermaid.js.
