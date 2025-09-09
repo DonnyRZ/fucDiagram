@@ -29,12 +29,12 @@ Animated Diagrams is a web-based tool that allows users to create, edit, and vis
 
 1. Clone the repository:
    ```
-   git clone <repository-url>
+   git clone https://github.com/DonnyRZ/fucDiagram.git
    ```
 
 2. Navigate to the project directory:
    ```
-   cd animated-diagrams
+   cd fucDiagram
    ```
 
 3. Install dependencies:
