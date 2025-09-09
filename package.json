@@ -1,0 +1,38 @@
+{
+  "name": "animated-diagrams",
+  "version": "1.0.0",
+  "description": "An application for creating, managing, and sharing animated diagrams generated from Mermaid.js code",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "serve": "vite preview",
+    "test": "vitest"
+  },
+  "dependencies": {
+    "gif.js": "^0.2.0",
+    "mermaid": "^10.9.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.14.0",
+    "zustand": "^4.3.8"
+  },
+  "devDependencies": {
+    "@types/gif.js": "^0.2.5",
+    "@types/react": "^18.2.14",
+    "@types/react-dom": "^18.2.6",
+    "@vitejs/plugin-react": "^4.0.1",
+    "typescript": "^5.1.3",
+    "vite": "^7.1.4",
+    "vitest": "^3.2.4"
+  },
+  "keywords": [
+    "mermaid",
+    "diagrams",
+    "animation",
+    "gif",
+    "flowchart"
+  ],
+  "author": "Animated Diagrams Team",
+  "license": "MIT"
+}

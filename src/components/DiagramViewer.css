@@ -1,0 +1,30 @@
+.diagram-viewer {
+  flex: 1;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  overflow: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.diagram-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.diagram-container svg {
+  max-width: 100%;
+  height: auto;
+}
+
+@media (min-width: 768px) {
+  .diagram-viewer {
+    padding: 2rem;
+  }
+}
