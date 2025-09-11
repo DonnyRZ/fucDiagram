@@ -1,6 +1,8 @@
+import { useEffect } from 'react';
 import { useApp } from '../hooks/useApp';
 import { ExportService } from '../services/exportService';
 import { useToast } from '../context/ToastContext';
+import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
 import { Button } from './ui/Button';
 import { Icon } from './ui/Icon';
 import './CanvasControls.css';
@@ -11,11 +13,29 @@ interface CanvasControlsProps {
   isEditing: boolean;
   onEditToggle: () => void;
   svgContent: string;
+  className?: string;
 }
 
-const CanvasControls = ({ isAnimating, onAnimate, isEditing, onEditToggle, svgContent }: CanvasControlsProps) => {
+const CanvasControls = ({ isAnimating, onAnimate, isEditing, onEditToggle, svgContent, className }: CanvasControlsProps) => {
   const { currentProject } = useApp();
   const { showToast } = useToast();
+  
+  // Keyboard shortcuts
+  useKeyboardShortcuts({
+    'ctrl+e': () => {
+      if (svgContent && currentProject) {
+        handleExport();
+      }
+    },
+    'ctrl+shift+e': () => {
+      if (svgContent && currentProject) {
+        handleExportSvg();
+      }
+    },
+    'ctrl+d': () => {
+      onEditToggle();
+    }
+  });
   
   const handleExport = async () => {
     if (!currentProject) {
@@ -47,7 +67,7 @@ const CanvasControls = ({ isAnimating, onAnimate, isEditing, onEditToggle, svgCo
   };
 
   return (
-    <div className="canvas-controls">
+    <div className={["canvas-controls", className].filter(Boolean).join(' ')}>
       <div className="control-row">
         <Button variant={isAnimating ? 'secondary' : 'primary'} onClick={onAnimate} className="control-button">
           <Icon name={isAnimating ? 'stop' : 'play'} />
@@ -56,15 +76,15 @@ const CanvasControls = ({ isAnimating, onAnimate, isEditing, onEditToggle, svgCo
 
         <Button variant="tonal" onClick={onEditToggle} aria-pressed={isEditing} className="control-button">
           <Icon name={isEditing ? 'check' : 'edit'} />
-          {isEditing ? 'Done' : 'Edit'}
+          {isEditing ? 'Done' : 'Edit'} (Ctrl+D)
         </Button>
         
         <Button variant="ghost" onClick={handleExport} disabled={!svgContent} className="control-button">
-          <Icon name="image" /> PNG
+          <Icon name="image" /> PNG (Ctrl+E)
         </Button>
 
         <Button variant="ghost" onClick={handleExportSvg} disabled={!svgContent} className="control-button">
-          <Icon name="file" /> SVG
+          <Icon name="file" /> SVG (Ctrl+Shift+E)
         </Button>
       </div>
     </div>

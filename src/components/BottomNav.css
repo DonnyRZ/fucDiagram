@@ -45,9 +45,9 @@
   transform: scale(0.98);
 }
 
+/* Hide bottom nav on desktop since we're using sidebar */
 @media (min-width: 768px) {
   .bottom-nav {
-    position: static;
-    padding-bottom: 8px;
+    display: none;
   }
 }

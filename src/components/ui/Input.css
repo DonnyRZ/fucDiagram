@@ -31,3 +31,11 @@
 .input .helper { font-size: var(--fs-caption); color: var(--color-muted); }
 .input .error { color: var(--color-error); background: transparent; border: none; padding: 0; }
 
+/* Compact density for desktop pointer */
+@media (pointer: fine) and (min-width: 1024px) {
+  .input input,
+  .input textarea {
+    padding: 10px 12px;
+    font-size: 14px;
+  }
+}

@@ -1,6 +1,6 @@
 .app-header {
   background-color: var(--color-surface);
-  box-shadow: var(--shadow-1);
+  border-bottom: 1px solid var(--color-border);
   padding: 1rem;
   position: sticky;
   top: 0;
@@ -8,40 +8,55 @@
 }
 
 .header-content {
+  margin: 0 auto;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  max-width: 1200px;
-  margin: 0 auto;
+  gap: 1rem;
 }
 
 .header-title {
-  font-size: var(--fs-h2);
-  line-height: var(--lh-h2);
+  font-size: var(--fs-h1);
   font-weight: 600;
   margin: 0;
-  text-align: center;
   flex: 1;
 }
 
 .back-button {
   background: none;
   border: none;
-  font-size: 1.5rem;
   cursor: pointer;
   padding: 0.5rem;
-  border-radius: 50%;
-  width: 48px;
-  height: 48px;
+  border-radius: 8px;
+  min-width: 44px;
+  min-height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .back-button:hover {
-  background-color: #f0f0f0;
+  background-color: #f1f5f9;
 }
 
-.header-spacer {
-  width: 40px; /* Same width as back button for alignment */
+.header-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* Desktop adjustments */
+@media (min-width: 768px) {
+  .app-header {
+    padding: 1rem 2rem;
+  }
+  
+  .header-content {
+    padding: 0 1rem;
+    max-width: none; /* allow full width on desktop */
+  }
+}
+
+/* Compact desktop header */
+@media (pointer: fine) and (min-width: 1024px) {
+  .app-header { padding: 0.5rem 1rem; }
+  .header-title { font-size: 20px; line-height: 28px; }
 }

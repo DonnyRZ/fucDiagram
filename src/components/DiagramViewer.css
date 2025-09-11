@@ -1,4 +1,4 @@
-.diagram-viewer { flex: 1; background-color: var(--color-surface); border-radius: var(--radius-md); box-shadow: var(--shadow-1); overflow: auto; display: flex; align-items: center; justify-content: center; padding: 1rem; }
+.diagram-viewer { height: 100%; min-height: 0; background-color: var(--color-surface); border-radius: var(--radius-md); box-shadow: var(--shadow-1); overflow: auto; display: flex; align-items: center; justify-content: center; padding: 1rem; }
 
 .diagram-container {
   width: 100%;
@@ -9,12 +9,17 @@
 }
 
 .diagram-container svg {
-  max-width: 100%;
-  height: auto;
+  width: 100% !important;
+  height: auto !important;
+  max-width: none;
 }
 
 @media (min-width: 768px) {
   .diagram-viewer {
-    padding: 2rem;
+    padding: 1.5rem; /* slightly tighter on desktop */
   }
+}
+
+@media (min-width: 1440px) {
+  .diagram-viewer { padding: 0.75rem; }
 }

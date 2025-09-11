@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useApp } from '../hooks/useApp';
 import { useMermaidRenderer } from '../hooks/useMermaidRenderer';
+import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
 import Header from './Header';
 import DiagramViewer from './DiagramViewer';
 import CanvasControls from './CanvasControls';
@@ -23,6 +24,32 @@ const CanvasPage = () => {
   console.log('CanvasPage render - isRendering:', isRendering);
   console.log('CanvasPage render - appError:', appError);
   console.log('CanvasPage render - renderError:', renderError);
+
+  // Keyboard shortcuts
+  useKeyboardShortcuts({
+    'ctrl+s': () => {
+      if (isEditing) {
+        // Save would be handled by the editor itself
+      } else {
+        // Toggle edit mode
+        setIsEditing(v => !v);
+      }
+    },
+    'ctrl+e': () => {
+      if (!isEditing) {
+        setIsEditing(true);
+      }
+    },
+    'escape': () => {
+      if (isEditing) {
+        setIsEditing(false);
+      }
+    },
+    ' ': () => {
+      // Spacebar to toggle animation
+      setAnimating(!isAnimating);
+    }
+  });
 
   // Load project when component mounts or projectId changes
   useEffect(() => {
@@ -81,6 +108,17 @@ const CanvasPage = () => {
       />
       
       <main className="canvas-content">
+        {/* Desktop/top controls (hidden on mobile via CSS) */}
+        <div className="canvas-controls-wrapper--top">
+          <CanvasControls
+            isAnimating={isAnimating}
+            onAnimate={handleAnimate}
+            isEditing={isEditing}
+            onEditToggle={handleEditToggle}
+            svgContent={svg || ''}
+            className="canvas-controls--top"
+          />
+        </div>
         {isProjectNotFound && (
           <div className="error-container">
             <div className="error">Project not found. It may have been deleted.</div>
@@ -122,13 +160,16 @@ const CanvasPage = () => {
       </main>
       
       {!isProjectNotFound && (
-        <CanvasControls
-          isAnimating={isAnimating}
-          onAnimate={handleAnimate}
-          isEditing={isEditing}
-          onEditToggle={handleEditToggle}
-          svgContent={svg || ''}
-        />
+        <div className="canvas-controls-wrapper--bottom">
+          <CanvasControls
+            isAnimating={isAnimating}
+            onAnimate={handleAnimate}
+            isEditing={isEditing}
+            onEditToggle={handleEditToggle}
+            svgContent={svg || ''}
+            className="canvas-controls--bottom"
+          />
+        </div>
       )}
     </div>
   );

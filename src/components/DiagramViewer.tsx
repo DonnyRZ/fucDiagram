@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { AnimationEngine } from '../services/animationEngine';
 import './DiagramViewer.css';
+import { sanitizeSvg } from '../utils/sanitize';
 
 interface DiagramViewerProps {
   svgContent: string;
@@ -41,7 +42,7 @@ const DiagramViewer = ({ svgContent, isAnimating }: DiagramViewerProps) => {
     >
       <div 
         className="diagram-container"
-        dangerouslySetInnerHTML={{ __html: svgContent }}
+        dangerouslySetInnerHTML={{ __html: sanitizeSvg(svgContent) }}
       />
     </div>
   );
