@@ -40,21 +40,20 @@ To create an animated GIF:
   
   static async exportAsPng(svgContent: string, projectName: string): Promise<void> {
     try {
-      // Show loading message
-      alert(`Exporting "${projectName}" as PNG. This may take a moment...`);
-      
       // Convert SVG to PNG
       const pngBlob = await this.convertSvgToPng(svgContent);
       
       // Download the PNG
       this.downloadBlob(pngBlob, `${projectName}.png`);
-      
-      // Show success message
-      alert(`"${projectName}" exported successfully as PNG!`);
     } catch (error: unknown) {
       console.error('Export failed:', error);
       throw new Error(`Failed to export diagram: ${(error as Error).message}`);
     }
+  }
+
+  static async exportAsSvg(svgContent: string, projectName: string): Promise<void> {
+    const blob = new Blob([svgContent], { type: 'image/svg+xml' });
+    this.downloadBlob(blob, `${projectName}.svg`);
   }
   
   private static async convertSvgToPng(svgContent: string): Promise<Blob> {

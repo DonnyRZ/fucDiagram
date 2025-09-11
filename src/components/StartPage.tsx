@@ -4,6 +4,7 @@ import { useApp } from '../hooks/useApp';
 import Header from './Header';
 import MermaidEditor from './MermaidEditor';
 import './StartPage.css';
+import { Input } from './ui/Input';
 
 const DEFAULT_MERMAID_TEMPLATE = `graph TD
     A[Start] --> B{Decision}
@@ -32,14 +33,11 @@ const StartPage = () => {
       
       <main className="start-content">
         <div className="name-input-container">
-          <label htmlFor="diagram-name">Diagram Name</label>
-          <input
-            id="diagram-name"
-            type="text"
+          <Input
+            label="Diagram Name"
+            placeholder="Enter diagram name"
             value={diagramName}
             onChange={(e) => setDiagramName(e.target.value)}
-            placeholder="Enter diagram name"
-            className="diagram-name-input"
           />
         </div>
         

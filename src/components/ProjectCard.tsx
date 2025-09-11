@@ -1,7 +1,8 @@
 import './ProjectCard.css';
+import { DiagramProject } from '../types';
 
 interface ProjectCardProps {
-  project: any;
+  project: DiagramProject;
   onOpen: () => void;
   onDelete: () => void;
 }

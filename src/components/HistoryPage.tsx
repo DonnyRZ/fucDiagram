@@ -4,6 +4,7 @@ import { useApp } from '../hooks/useApp';
 import Header from './Header';
 import ProjectList from './ProjectList';
 import './HistoryPage.css';
+import { Button } from './ui/Button';
 
 const HistoryPage = () => {
   const navigate = useNavigate();
@@ -49,20 +50,10 @@ const HistoryPage = () => {
           <div className="empty-state">
             <p>{searchQuery ? "No matching diagrams found" : "No diagrams yet"}</p>
             {!searchQuery && (
-              <button 
-                className="touch-button primary"
-                onClick={() => navigate('/')}
-              >
-                Create Your First Diagram
-              </button>
+              <Button variant="primary" onClick={() => navigate('/')}>Create Your First Diagram</Button>
             )}
             {searchQuery && (
-              <button 
-                className="touch-button secondary"
-                onClick={() => setSearchQuery('')}
-              >
-                Clear Search
-              </button>
+              <Button variant="tonal" onClick={() => setSearchQuery('')}>Clear Search</Button>
             )}
           </div>
         )}

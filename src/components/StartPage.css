@@ -1,13 +1,6 @@
-.start-page {
-  min-height: 100vh;
-  background-color: #f8f9fa;
-}
+.start-page { min-height: 100vh; min-height: 100dvh; background-color: var(--color-bg); }
 
-.start-content {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 1rem;
-}
+.start-content { max-width: 1200px; margin: 0 auto; padding: 1rem; padding-bottom: calc(80px + env(safe-area-inset-bottom)); }
 
 .name-input-container {
   margin-bottom: 1rem;
@@ -19,16 +12,4 @@
   font-weight: 500;
 }
 
-.diagram-name-input {
-  width: 100%;
-  padding: 0.75rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 1rem;
-}
-
-.diagram-name-input:focus {
-  outline: none;
-  border-color: #007bff;
-  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
-}
+/* Input now uses tokenized component */

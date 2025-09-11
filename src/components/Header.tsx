@@ -1,5 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import './Header.css';
+import { Icon } from './ui/Icon';
+import { IconButton } from './ui/Button';
 
 interface HeaderProps {
   title: string;
@@ -22,13 +24,9 @@ const Header = ({ title, showBack = false, onBack }: HeaderProps) => {
     <header className="app-header">
       <div className="header-content">
         {showBack && (
-          <button 
-            className="back-button touch-target"
-            onClick={handleBack}
-            aria-label="Go back"
-          >
-            ←
-          </button>
+          <IconButton className="back-button" onClick={handleBack} aria-label="Go back">
+            <Icon name="back" />
+          </IconButton>
         )}
         <h1 className="header-title">{title}</h1>
         <div className="header-spacer"></div>
