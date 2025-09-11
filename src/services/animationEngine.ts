@@ -46,6 +46,9 @@ export class AnimationEngine {
   };
 
   static injectAnimationStyles(container: HTMLElement): void {
+    // Respect reduced motion
+    const prefersReduced = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReduced) return;
     // Create or update style element with animation CSS
     let styleElement = container.querySelector('#animation-styles') as HTMLStyleElement;
     if (!styleElement) {
@@ -63,6 +66,8 @@ export class AnimationEngine {
   }
 
   static applyAnimation(svgElement: SVGElement, animationType: string = 'flow'): void {
+    const prefersReduced = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReduced) return;
     // Find all edge paths in the SVG
     // In Mermaid diagrams, edges are typically represented as <path> elements
     const edgePaths = svgElement.querySelectorAll('path');

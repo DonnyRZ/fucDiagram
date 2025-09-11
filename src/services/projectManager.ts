@@ -108,6 +108,9 @@ export class ProjectManager {
     if (typeof value === 'string' && key === 'timestamp') {
       return new Date(value);
     }
+    if (typeof value === 'string' && key === 'lastOpened') {
+      return new Date(value);
+    }
     return value;
   }
 }

@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useMermaidRenderer } from '../hooks/useMermaidRenderer';
 import './MermaidEditor.css';
+import { Button } from './ui/Button';
+import { Icon } from './ui/Icon';
 
 interface MermaidEditorProps {
   initialValue: string;
@@ -34,12 +36,9 @@ const MermaidEditor = ({ initialValue, onSave }: MermaidEditorProps) => {
       <div className="editor-section">
         <div className="editor-header">
           <h2>Mermaid Code</h2>
-          <button 
-            className="touch-button secondary paste-button"
-            onClick={handlePaste}
-          >
-            📋 Paste
-          </button>
+          <Button variant="tonal" className="paste-button" onClick={handlePaste} aria-label="Paste from clipboard">
+            <Icon name="file" /> Paste
+          </Button>
         </div>
         
         <textarea
@@ -51,13 +50,14 @@ const MermaidEditor = ({ initialValue, onSave }: MermaidEditorProps) => {
         />
         
         <div className="editor-actions">
-          <button 
-            className="touch-button primary save-button"
+          <Button 
+            variant="primary" 
+            className="save-button"
             onClick={() => onSave(code)}
             disabled={!code.trim() || isRendering}
           >
-            {isRendering ? 'Rendering...' : '💾 Save Diagram'}
-          </button>
+            {isRendering ? 'Rendering…' : 'Save Diagram'}
+          </Button>
         </div>
       </div>
       

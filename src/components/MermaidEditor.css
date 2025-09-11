@@ -35,7 +35,7 @@
   font-family: 'Courier New', Courier, monospace;
   font-size: 14px;
   resize: vertical;
-  min-height: 300px;
+  min-height: 220px;
 }
 
 .mermaid-textarea:focus {
@@ -94,11 +94,6 @@
 }
 
 @media (min-width: 768px) {
-  .mermaid-textarea {
-    min-height: 400px;
-  }
-  
-  .preview-container {
-    min-height: 400px;
-  }
+  .mermaid-textarea { min-height: 320px; }
+  .preview-container { min-height: 320px; }
 }

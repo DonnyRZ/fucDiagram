@@ -1,17 +1,21 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useApp } from '../hooks/useApp';
 import { useMermaidRenderer } from '../hooks/useMermaidRenderer';
 import Header from './Header';
 import DiagramViewer from './DiagramViewer';
 import CanvasControls from './CanvasControls';
+import MermaidEditor from './MermaidEditor';
+import { useToast } from '../context/ToastContext';
 import './CanvasPage.css';
 
 const CanvasPage = () => {
   const { projectId } = useParams();
   const navigate = useNavigate();
-  const { currentProject, loadProject, setAnimating, isAnimating, error: appError } = useApp();
+  const { currentProject, loadProject, setAnimating, isAnimating, error: appError, setCurrentProjectCode } = useApp();
   const { render, svg, isRendering, error: renderError } = useMermaidRenderer();
+  const { showToast } = useToast();
+  const [isEditing, setIsEditing] = useState(false);
 
   console.log('CanvasPage render - projectId:', projectId);
   console.log('CanvasPage render - currentProject:', currentProject);
@@ -45,9 +49,13 @@ const CanvasPage = () => {
     setAnimating(!isAnimating);
   };
 
-  const handleSave = () => {
-    // Save is handled automatically through the context
-    alert('Diagram saved successfully!');
+  const handleEditToggle = () => setIsEditing(v => !v);
+
+  const handleEditorSave = (code: string) => {
+    if (!currentProject) return;
+    setCurrentProjectCode(code);
+    showToast('Diagram updated', 'success');
+    setIsEditing(false);
   };
 
   // Check if we're trying to load a specific project but it's not found
@@ -85,25 +93,27 @@ const CanvasPage = () => {
           </div>
         )}
         
-        {(isRendering || !svg) && !isError && !isProjectNotFound && (
+        {isEditing && currentProject && (
+          <MermaidEditor
+            initialValue={currentProject.mermaidCode}
+            onSave={handleEditorSave}
+          />
+        )}
+
+        {(isRendering || !svg) && !isError && !isProjectNotFound && !isEditing && (
           <div className="loading-container">
             <div className="loading">Rendering diagram... (isRendering: {String(isRendering)}, svg: {String(!!svg)})</div>
           </div>
         )}
         
-        {isError && !isProjectNotFound && (
+        {isError && !isProjectNotFound && !isEditing && (
           <div className="error-container">
             <div className="error">{isError}</div>
-            <button 
-              className="touch-button secondary"
-              onClick={() => navigate('/history')}
-            >
-              Back to History
-            </button>
+            <button className="touch-button secondary" onClick={() => navigate('/history')}>Back to History</button>
           </div>
         )}
         
-        {svg && !isProjectNotFound && (
+        {svg && !isProjectNotFound && !isEditing && (
           <DiagramViewer
             svgContent={svg}
             isAnimating={isAnimating}
@@ -115,7 +125,8 @@ const CanvasPage = () => {
         <CanvasControls
           isAnimating={isAnimating}
           onAnimate={handleAnimate}
-          onSave={handleSave}
+          isEditing={isEditing}
+          onEditToggle={handleEditToggle}
           svgContent={svg || ''}
         />
       )}
