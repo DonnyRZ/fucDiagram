@@ -1,8 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useMermaidRenderer } from '../hooks/useMermaidRenderer';
+import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
 import './MermaidEditor.css';
 import { Button } from './ui/Button';
 import { Icon } from './ui/Icon';
+import { sanitizeSvg } from '../utils/sanitize';
 
 interface MermaidEditorProps {
   initialValue: string;
@@ -12,6 +14,16 @@ interface MermaidEditorProps {
 const MermaidEditor = ({ initialValue, onSave }: MermaidEditorProps) => {
   const [code, setCode] = useState(initialValue);
   const { render, isRendering, svg, error } = useMermaidRenderer();
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Keyboard shortcuts
+  useKeyboardShortcuts({
+    'ctrl+s': () => {
+      if (code.trim() && !isRendering) {
+        onSave(code);
+      }
+    }
+  });
 
   // Render preview when code changes (debounced)
   useEffect(() => {
@@ -42,6 +54,7 @@ const MermaidEditor = ({ initialValue, onSave }: MermaidEditorProps) => {
         </div>
         
         <textarea
+          ref={textareaRef}
           value={code}
           onChange={(e) => setCode(e.target.value)}
           placeholder="Enter your Mermaid.js code here..."
@@ -56,7 +69,7 @@ const MermaidEditor = ({ initialValue, onSave }: MermaidEditorProps) => {
             onClick={() => onSave(code)}
             disabled={!code.trim() || isRendering}
           >
-            {isRendering ? 'Rendering…' : 'Save Diagram'}
+            {isRendering ? 'Rendering…' : 'Save Diagram'} (Ctrl+S)
           </Button>
         </div>
       </div>
@@ -71,7 +84,7 @@ const MermaidEditor = ({ initialValue, onSave }: MermaidEditorProps) => {
           ) : svg ? (
             <div 
               className="diagram-preview"
-              dangerouslySetInnerHTML={{ __html: svg }}
+              dangerouslySetInnerHTML={{ __html: sanitizeSvg(svg) }}
             />
           ) : (
             <div className="preview-placeholder">

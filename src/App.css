@@ -2,3 +2,27 @@
   min-height: 100vh;
   background-color: #f8f9fa;
 }
+
+/* Desktop layout: grid shell with sticky sidebar */
+@media (min-width: 768px) {
+  .app-container {
+    display: grid;
+    grid-template-columns: 250px 1fr;
+    min-height: 100dvh;
+  }
+
+  .main {
+    grid-column: 2;
+    min-width: 0; /* prevent overflow */
+    display: flex;
+    flex-direction: column;
+    min-height: 100dvh;
+  }
+}
+
+/* Collapsed sidebar variant */
+@media (min-width: 768px) {
+  .app-container.sidebar-collapsed {
+    grid-template-columns: 72px 1fr;
+  }
+}

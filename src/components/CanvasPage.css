@@ -1,4 +1,10 @@
-.canvas-page { min-height: 100vh; min-height: 100dvh; background-color: var(--color-bg); display: flex; flex-direction: column; }
+.canvas-page { 
+  min-height: 100vh; 
+  min-height: 100dvh; 
+  background-color: var(--color-bg); 
+  display: flex; 
+  flex-direction: column; 
+}
 
 .canvas-content {
   flex: 1;
@@ -17,6 +23,23 @@
 
 @media (min-width: 768px) {
   .canvas-content {
-    padding: 2rem;
+    padding: 1.5rem;
+    display: grid;
+    grid-template-rows: auto 1fr; /* top controls + viewer area */
   }
+}
+
+@media (min-width: 1024px) {
+  .canvas-content {
+    padding: 1rem 1.5rem; /* tighter to maximize viewer area */
+  }
+}
+
+/* Controls placement variants */
+.canvas-controls-wrapper--top { display: none; }
+.canvas-controls-wrapper--bottom { display: block; }
+
+@media (min-width: 1024px) {
+  .canvas-controls-wrapper--top { display: block; }
+  .canvas-controls-wrapper--bottom { display: none; }
 }

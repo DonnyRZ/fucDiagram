@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../hooks/useApp';
+import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
 import Header from './Header';
 import ProjectList from './ProjectList';
 import './HistoryPage.css';
@@ -10,6 +11,13 @@ const HistoryPage = () => {
   const navigate = useNavigate();
   const { projects, deleteProject } = useApp();
   const [searchQuery, setSearchQuery] = useState('');
+
+  // Keyboard shortcuts
+  useKeyboardShortcuts({
+    'ctrl+n': () => {
+      navigate('/');
+    }
+  });
 
   const handleOpenProject = (id: string) => {
     navigate(`/canvas/${id}`);
@@ -50,7 +58,7 @@ const HistoryPage = () => {
           <div className="empty-state">
             <p>{searchQuery ? "No matching diagrams found" : "No diagrams yet"}</p>
             {!searchQuery && (
-              <Button variant="primary" onClick={() => navigate('/')}>Create Your First Diagram</Button>
+              <Button variant="primary" onClick={() => navigate('/')}>Create Your First Diagram (Ctrl+N)</Button>
             )}
             {searchQuery && (
               <Button variant="tonal" onClick={() => setSearchQuery('')}>Clear Search</Button>
