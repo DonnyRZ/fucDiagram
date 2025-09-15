@@ -9,7 +9,7 @@ export const useMermaidRenderer = () => {
   const lastRenderParams = useRef<{code: string, id: string} | null>(null);
 
   const render = useCallback(async (code: string, id: string) => {
-    console.log('useMermaidRenderer - render called with:', { code, id });
+    if (import.meta.env.DEV) console.log('useMermaidRenderer - render called with:', { code, id });
     
     // Check if we're already rendering with the same parameters
     if (lastRenderParams.current && 
@@ -34,7 +34,7 @@ export const useMermaidRenderer = () => {
 
     try {
       const result = await MermaidRenderer.render(id, code);
-      console.log('useMermaidRenderer - render result:', result);
+      if (import.meta.env.DEV) console.log('useMermaidRenderer - render result:', result);
       
       // Check if the result is valid
       if (!result || !result.svg) {

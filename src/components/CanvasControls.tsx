@@ -14,9 +14,16 @@ interface CanvasControlsProps {
   onEditToggle: () => void;
   svgContent: string;
   className?: string;
+  onZoomIn?: () => void;
+  onZoomOut?: () => void;
+  onFit?: () => void;
+  onFitWidth?: () => void;
+  onFitHeight?: () => void;
+  onResetView?: () => void;
+  zoom?: number;
 }
 
-const CanvasControls = ({ isAnimating, onAnimate, isEditing, onEditToggle, svgContent, className }: CanvasControlsProps) => {
+const CanvasControls = ({ isAnimating, onAnimate, isEditing, onEditToggle, svgContent, className, onZoomIn, onZoomOut, onFit, onFitWidth, onFitHeight, onResetView, zoom }: CanvasControlsProps) => {
   const { currentProject } = useApp();
   const { showToast } = useToast();
   
@@ -86,6 +93,37 @@ const CanvasControls = ({ isAnimating, onAnimate, isEditing, onEditToggle, svgCo
         <Button variant="ghost" onClick={handleExportSvg} disabled={!svgContent} className="control-button">
           <Icon name="file" /> SVG (Ctrl+Shift+E)
         </Button>
+
+        {onZoomOut && (
+          <Button variant="ghost" onClick={onZoomOut} disabled={!svgContent} className="control-button" aria-label="Zoom out">
+            − Zoom
+          </Button>
+        )}
+        {onZoomIn && (
+          <Button variant="ghost" onClick={onZoomIn} disabled={!svgContent} className="control-button" aria-label="Zoom in">
+            + Zoom
+          </Button>
+        )}
+        {onFit && (
+          <Button variant="ghost" onClick={onFit} disabled={!svgContent} className="control-button" aria-label="Fit to screen">
+            Fit
+          </Button>
+        )}
+        {onFitWidth && (
+          <Button variant="ghost" onClick={onFitWidth} disabled={!svgContent} className="control-button" aria-label="Fit to width">
+            Fit W
+          </Button>
+        )}
+        {onFitHeight && (
+          <Button variant="ghost" onClick={onFitHeight} disabled={!svgContent} className="control-button" aria-label="Fit to height">
+            Fit H
+          </Button>
+        )}
+        {onResetView && (
+          <Button variant="ghost" onClick={onResetView} disabled={!svgContent} className="control-button" aria-label="Reset view">
+            Reset
+          </Button>
+        )}
       </div>
     </div>
   );

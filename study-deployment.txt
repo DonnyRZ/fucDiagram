@@ -1,0 +1,95 @@
+### Hands-On Guide to Deploying Apps Like Pieter Levels
+
+Pieter Levels (@levelsio) uses a minimalist, low-cost setup for deploying his apps (e.g., Nomad List, Remote OK). This involves a single VPS for direct code editing ("raw dog dev"), Nginx as the web server, Cloudflare for free caching and protection, and AI tools for quick configurations. The goal is speed: changes live in seconds, costs under $100/month for high-traffic sites, and load times like 27ms. This guide assumes a basic PHP web app (common for his stack), but adapt for others. It's not production-hardened—add security audits for real use.
+
+#### What to Prepare
+Before starting, gather these:
+- **Domain Name**: Register one (e.g., via Namecheap or GoDaddy). Pieter recommends affordable registrars.
+- **Hetzner Account**: Sign up at [hetzner.com/cloud](https://www.hetzner.com/cloud). Start with a $3-5/month VPS (e.g., CX11: 2GB RAM, 20GB SSD). Alternatives: DigitalOcean or Linode, but Hetzner is his go-to for affordability and uptime.
+- **SSH Client**: Termius (mobile-friendly) or built-in terminal (e.g., OpenSSH on Mac/Linux: `ssh user@ip`).
+- **SSH Key**: Generate one (`ssh-keygen -t ed25519`) for secure access. Upload public key during VPS creation.
+- **App Code**: Your PHP files, ready to upload or edit. Database schema if using MySQL.
+- **AI Tool**: Access to Claude.ai or Cursor CLI for generating commands (e.g., "Configure Nginx vhost for mydomain.com"). Pieter uses this heavily.
+- **Cloudflare Account**: Free tier at [cloudflare.com](https://cloudflare.com). For caching 85% of traffic (static assets like JS/CSS/images), DDoS protection, and global speed.
+- **Monitoring Tool**: UptimeRobot (free plan) for alerts via Telegram.
+- **Optional**: Let's Encrypt for SSL (free certs). Cloudflare handles this partly.
+
+Total setup time: 30-60 minutes for a basic app. Costs: ~$3-5/month VPS + free everything else.
+
+#### Step-by-Step Deployment Guide
+
+1. **Create Your VPS on Hetzner**
+   - Log into Hetzner Cloud dashboard.
+   - Create a new project.
+   - Add a server: Choose location (e.g., US for low latency to major users—Pieter notes 100ms global average). Select Ubuntu 22.04 LTS (stable, easy). Add your SSH public key. No firewall yet (enable later).
+   - Launch: Takes ~5 minutes. Note the IP address (e.g., 123.45.67.89).
+   - Pieter's tip: One VPS handles millions of users; split only for security if needed.
+
+2. **SSH Into the Server and Secure It**
+   - From your terminal: `ssh root@your-vps-ip` (or use Termius app).
+   - Update system: `apt update && apt upgrade -y`.
+   - Set up a non-root user (for security): `adduser yourusername`, then add to sudo: `usermod -aG sudo yourusername`.
+   - Switch user: `su - yourusername`.
+   - Disable root SSH: Edit `/etc/ssh/sshd_config` (use nano: `sudo nano /etc/ssh/sshd_config`), set `PermitRootLogin no`, restart SSH: `sudo systemctl restart ssh`.
+   - Pieter edits directly here—no local dev, just live changes. Test: Refresh browser to see updates instantly.
+
+3. **Install Nginx, PHP, and MySQL**
+   - Install: `sudo apt install nginx php8.1-fpm php8.1-mysql mysql-server -y` (adjust PHP version; Pieter keeps it simple, no heavy frameworks).
+   - Secure MySQL: `sudo mysql_secure_installation` (enable password, remove test DB).
+   - Configure PHP: Edit `/etc/php/8.1/fpm/php.ini`—set `cgi.fix_pathinfo=0`, restart: `sudo systemctl restart php8.1-fpm`.
+   - Start Nginx: `sudo systemctl start nginx && sudo systemctl enable nginx`.
+   - Test: Visit your VPS IP in browser—should show Nginx welcome page.
+   - Pieter's approach: Ask AI for commands, e.g., "Install Nginx and uninstall Apache if present."
+
+4. **Upload and Configure Your App**
+   - Create site directory: `sudo mkdir -p /var/www/yourdomain.com/html`.
+   - Upload code: Use SCP (`scp -r /local/path/* yourusername@your-vps-ip:/var/www/yourdomain.com/html`) or edit directly with nano/vim.
+   - Set permissions: `sudo chown -R www-data:www-data /var/www/yourdomain.com/html`.
+   - Configure Nginx vhost: Ask AI to generate (e.g., "Nginx config for PHP site on yourdomain.com"). Basic example in `/etc/nginx/sites-available/yourdomain.com`:
+     ```
+     server {
+         listen 80;
+         server_name yourdomain.com;
+         root /var/www/yourdomain.com/html;
+         index index.php index.html;
+         location / {
+             try_files $uri $uri/ =404;
+         }
+         location ~ \.php$ {
+             include snippets/fastcgi-php.conf;
+             fastcgi_pass unix:/run/php/php8.1-fpm.sock;
+         }
+     }
+     ```
+     Link and restart: `sudo ln -s /etc/nginx/sites-available/yourdomain.com /etc/nginx/sites-enabled/ && sudo nginx -t && sudo systemctl reload nginx`.
+   - For multiple sites: Add vhosts—no new users needed.
+   - Database: `sudo mysql -u root -p`, create DB/user: `CREATE DATABASE yourdb; CREATE USER 'youruser'@'localhost' IDENTIFIED BY 'password'; GRANT ALL ON yourdb.* TO 'youruser'@'localhost'; FLUSH PRIVILEGES;`.
+
+5. **Set Up SSL with Let's Encrypt**
+   - Install Certbot: `sudo apt install certbot python3-certbot-nginx -y`.
+   - Run: `sudo certbot --nginx -d yourdomain.com` (auto-configures HTTPS).
+   - Auto-renew: `sudo certbot renew --dry-run`.
+   - Pieter uses AI for this: "Set up Let's Encrypt on Nginx."
+
+6. **Integrate Cloudflare for Caching, DDoS, and Performance**
+   - Add site to Cloudflare: Enter domain, scan DNS (or add A record pointing to VPS IP).
+   - Update nameservers at your registrar to Cloudflare's.
+   - SSL: Set to "Full (strict)" for end-to-end encryption (use your Let's Encrypt cert).
+   - Caching: Enable "Cache Everything" rule, but add exception for login cookies (e.g., bypass if cookie present) to avoid session leaks. Default caches static assets—handles 85% traffic.
+   - DDoS: Enable under Security > DDoS (free mitigation).
+   - Optimization: Turn on Auto Minify, Polish for images. No need for multi-region unless latency-critical.
+   - Test: Cloudflare proxies traffic; your site now loads faster globally.
+
+7. **Set Up Monitoring and Go Live**
+   - Sign up at [uptimerobot.com](https://uptimerobot.com): Add monitors for your endpoints (100-200, every minute). Integrate Telegram for alerts.
+   - Point domain DNS to VPS IP (A record) via Cloudflare.
+   - Deploy: Edit files via SSH, refresh browser. Add a button? 20 seconds to live.
+   - Scale: One VPS suffices; add more if traffic spikes (no shared sessions like Redis unless needed).
+
+#### Tips from Pieter
+- **Speed Philosophy**: Keep code fast (20ms generation), no abstractions. Avoid Vercel/AWS lock-in—VPS is 99% sufficient.
+- **Troubleshooting**: Revert changes if broken. Use AI for everything (e.g., domain connection).
+- **Costs**: $3-99/month VPS + free Cloudflare/UptimeRobot. Handles millions without issues.
+- **Evolution**: He now splits sites to separate VPS for isolation. Integrate AI early.
+
+This replicates his solo, rapid-deployment style. For more, check his 2014 MVP guide. If issues, ask AI or search specifics!

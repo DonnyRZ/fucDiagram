@@ -80,10 +80,10 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const loadProject = useCallback((id: string): void => {
     try {
       const project = ProjectManager.getProject(id);
-      console.log('Project found:', project);
+      if (import.meta.env.DEV) console.log('Project found:', project);
       if (project) {
         setState(prev => {
-          console.log('Setting current project in state:', {
+          if (import.meta.env.DEV) console.log('Setting current project in state:', {
             ...project,
             lastOpened: new Date()
           });
@@ -109,7 +109,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
           console.error('Failed to update project lastOpened timestamp:', updateError);
         }
       } else {
-        console.log('Project not found');
+        if (import.meta.env.DEV) console.log('Project not found');
         setState(prev => ({ ...prev, currentProject: null, error: 'Project not found' }));
       }
     } catch (error) {

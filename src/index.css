@@ -37,6 +37,25 @@
   --lh-caption: 18px;
 }
 
+/* Dark theme tokens */
+[data-theme='dark'] {
+  --color-bg: #0b1220;
+  --color-surface: #121a2a;
+  --color-text: #e5e7eb;
+  --color-muted: #9aa4b2;
+  --color-border: #1f2a3d;
+  --color-primary: #60a5fa;
+  --color-primary-hover: #3b82f6;
+  --color-secondary: #22d3ee;
+  --color-accent: #fbbf24;
+  --color-success: #22c55e;
+  --color-error: #ef4444;
+  --color-warning: #f59e0b;
+
+  --shadow-1: 0 1px 3px rgba(0,0,0,0.4), 0 1px 2px rgba(0,0,0,0.32);
+  --shadow-2: 0 10px 15px rgba(0,0,0,0.45), 0 4px 6px rgba(0,0,0,0.4);
+}
+
 * {
   margin: 0;
   padding: 0;

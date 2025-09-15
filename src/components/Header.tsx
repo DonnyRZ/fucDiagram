@@ -1,5 +1,6 @@
 import './Header.css';
 import { Icon } from './ui/Icon';
+import ThemeToggle from './ThemeToggle';
 
 interface HeaderProps {
   title: string;
@@ -17,14 +18,14 @@ const Header = ({ title, showBack = false, onBack }: HeaderProps) => {
             onClick={onBack}
             aria-label="Go back"
           >
-            <Icon name="arrow-left" />
+            <Icon name="back" />
           </button>
         )}
         
         <h1 className="header-title">{title}</h1>
         
         <div className="header-actions">
-          {/* We can add user actions here in the future */}
+          <ThemeToggle />
         </div>
       </div>
     </header>
