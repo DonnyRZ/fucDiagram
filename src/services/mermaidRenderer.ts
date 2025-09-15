@@ -10,7 +10,7 @@ mermaid.initialize({
 export class MermaidRenderer {
   static async render(id: string, code: string): Promise<{ svg: string; diagramType: string }> {
     try {
-      console.log('MermaidRenderer - render called with:', { id, code });
+      if (import.meta.env.DEV) console.log('MermaidRenderer - render called with:', { id, code });
       // Clean the code by removing extra whitespace
       const cleanCode = code.trim();
       
@@ -20,7 +20,7 @@ export class MermaidRenderer {
       
       // The render function returns the SVG string directly in newer versions
       const svgResult: any = await mermaid.render(id, cleanCode);
-      console.log('MermaidRenderer - raw result:', svgResult);
+      if (import.meta.env.DEV) console.log('MermaidRenderer - raw result:', svgResult);
       // Handle both string and object return types
       const svg = typeof svgResult === 'string' ? svgResult : svgResult.svg;
       
@@ -34,7 +34,7 @@ export class MermaidRenderer {
         throw new Error('Empty SVG returned from Mermaid');
       }
       
-      console.log('MermaidRenderer - processed svg:', svg);
+      if (import.meta.env.DEV) console.log('MermaidRenderer - processed svg:', svg);
       return { svg, diagramType: 'unknown' }; // mermaid.render doesn't return diagramType in newer versions
     } catch (error: unknown) {
       console.error('Mermaid rendering error:', error);

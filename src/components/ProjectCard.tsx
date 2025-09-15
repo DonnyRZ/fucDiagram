@@ -1,5 +1,6 @@
 import './ProjectCard.css';
 import { DiagramProject } from '../types';
+import { Icon } from './ui/Icon';
 
 interface ProjectCardProps {
   project: DiagramProject;
@@ -32,8 +33,9 @@ const ProjectCard = ({ project, onOpen, onDelete }: ProjectCardProps) => {
             onDelete();
           }}
           aria-label={`Delete ${project.name}`}
+          title="Delete"
         >
-          🗑️
+          <Icon name="trash" />
         </button>
       </div>
     </div>
