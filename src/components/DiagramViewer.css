@@ -1,5 +1,27 @@
-.diagram-viewer { height: 100%; min-height: 0; background-color: var(--color-surface); border-radius: var(--radius-md); box-shadow: var(--shadow-1); overflow: auto; display: flex; align-items: flex-start; justify-content: flex-start; padding: 1rem; cursor: grab; }
-.diagram-viewer.panning { cursor: grabbing; user-select: none; }
+.diagram-viewer { 
+  height: 100%; 
+  min-height: 0; 
+  background-color: var(--color-surface); 
+  border-radius: var(--radius-md); 
+  box-shadow: var(--shadow-1); 
+  overflow: auto; 
+  display: flex; 
+  align-items: flex-start; 
+  justify-content: flex-start; 
+  padding: 1rem; 
+  cursor: grab; 
+  transition: box-shadow 0.2s ease;
+}
+
+.diagram-viewer:hover {
+  box-shadow: var(--shadow-2);
+}
+
+.diagram-viewer.panning { 
+  cursor: grabbing; 
+  user-select: none; 
+  box-shadow: var(--shadow-3);
+}
 
 .diagram-container {
   width: 100%;

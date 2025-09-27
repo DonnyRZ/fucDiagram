@@ -2,6 +2,7 @@
   background-color: var(--color-surface);
   padding: 1rem;
   z-index: 100;
+  box-shadow: var(--shadow-1);
 }
 
 /* Bottom variant (mobile) */
@@ -31,6 +32,18 @@
   max-width: none; 
   min-height: 48px; 
   min-width: 100px;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-1);
+  transition: all 0.2s ease;
+}
+
+.control-button:hover {
+  box-shadow: var(--shadow-2);
+  transform: translateY(-1px);
+}
+
+.control-button:active {
+  transform: translateY(0);
 }
 
 @media (min-width: 420px) {
@@ -41,8 +54,9 @@
 }
 
 .control-button.active {
-  background-color: #28a745;
+  background-color: var(--color-primary);
   color: white;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
 }
 
 @media (min-width: 768px) {

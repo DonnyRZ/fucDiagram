@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import { useApp } from '../hooks/useApp';
 import { ExportService } from '../services/exportService';
 import { useToast } from '../context/ToastContext';
@@ -23,7 +22,7 @@ interface CanvasControlsProps {
   zoom?: number;
 }
 
-const CanvasControls = ({ isAnimating, onAnimate, isEditing, onEditToggle, svgContent, className, onZoomIn, onZoomOut, onFit, onFitWidth, onFitHeight, onResetView, zoom }: CanvasControlsProps) => {
+const CanvasControls = ({ isAnimating, onAnimate, isEditing, onEditToggle, svgContent, className, onZoomIn, onZoomOut, onFit, onFitWidth, onFitHeight, onResetView }: CanvasControlsProps) => {
   const { currentProject } = useApp();
   const { showToast } = useToast();
   

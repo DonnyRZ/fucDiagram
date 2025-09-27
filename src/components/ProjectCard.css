@@ -1,35 +1,70 @@
 .project-card {
   background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-1);
   overflow: hidden;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: all 0.2s ease;
   cursor: pointer;
+  position: relative;
 }
 
-.project-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-2); }
+.project-card:hover { 
+  transform: translateY(-2px); 
+  box-shadow: var(--shadow-3); 
+  border-color: var(--color-primary-light);
+}
+
+.project-card:active {
+  transform: translateY(0);
+}
 
 .project-info {
   padding: 1rem;
 }
 
-.project-name { margin: 0 0 0.5rem 0; font-size: var(--fs-body); font-weight: 600; color: var(--color-text); }
+.project-name { 
+  margin: 0 0 0.5rem 0; 
+  font-size: var(--fs-body); 
+  font-weight: var(--fw-body); 
+  color: var(--color-text); 
+  line-height: var(--lh-body);
+}
 
-.project-date { margin: 0.25rem 0; font-size: var(--fs-caption); color: var(--color-muted); }
+.project-date { 
+  margin: 0.25rem 0; 
+  font-size: var(--fs-caption); 
+  color: var(--color-muted); 
+  line-height: var(--lh-caption);
+}
 
-.project-actions { display: flex; justify-content: flex-end; padding: 0.5rem 1rem; border-top: 1px solid var(--color-border); }
+.project-actions { 
+  display: flex; 
+  justify-content: flex-end; 
+  padding: 0.5rem 1rem; 
+  border-top: 1px solid var(--color-border);
+  background-color: var(--color-gray-50);
+}
 
 .delete-btn {
   background: none;
   border: none;
   cursor: pointer;
   padding: 0.5rem;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   font-size: 1.2rem;
   min-width: 48px;
   min-height: 48px;
+  transition: all 0.2s ease;
+  color: var(--color-error);
 }
 
 .delete-btn:hover {
-  background-color: #f8f9fa;
+  background-color: var(--color-error-light);
+  transform: translateY(-1px);
+  color: var(--color-error);
+}
+
+.delete-btn:active {
+  transform: translateY(0);
 }

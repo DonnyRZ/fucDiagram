@@ -85,10 +85,10 @@ const CanvasPage = () => {
 
   const handleZoomIn = () => setZoom(z => Math.min(3, parseFloat((z + 0.1).toFixed(2))));
   const handleZoomOut = () => setZoom(z => Math.max(0.2, parseFloat((z - 0.1).toFixed(2))));
-  const handleFit = () => { setZoom(1); viewerRef.current?.resetPan(); };
+  const handleFit = () => viewerRef.current?.centerView();
   const handleFitWidth = () => viewerRef.current?.fitToWidth();
   const handleFitHeight = () => viewerRef.current?.fitToHeight();
-  const handleResetView = () => { setZoom(1); viewerRef.current?.resetPan(); };
+  const handleResetView = () => viewerRef.current?.centerView();
 
   const handleEditorSave = (code: string) => {
     if (!currentProject) return;
@@ -156,7 +156,10 @@ const CanvasPage = () => {
 
         {(isRendering || !svg) && !isError && !isProjectNotFound && !isEditing && (
           <div className="loading-container">
-            <div className="loading">Rendering diagram... (isRendering: {String(isRendering)}, svg: {String(!!svg)})</div>
+            <div className="loading">
+              <span className="spinner"></span>
+              Rendering diagram...
+            </div>
           </div>
         )}
         
@@ -174,6 +177,7 @@ const CanvasPage = () => {
             isAnimating={isAnimating}
             zoom={zoom}
             onZoomChange={setZoom}
+            centerByDefault={true}
           />
         )}
       </main>

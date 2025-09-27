@@ -69,7 +69,14 @@ const MermaidEditor = ({ initialValue, onSave }: MermaidEditorProps) => {
             onClick={() => onSave(code)}
             disabled={!code.trim() || isRendering}
           >
-            {isRendering ? 'Rendering…' : 'Save Diagram'} (Ctrl+S)
+            {isRendering ? (
+              <>
+                <span className="spinner"></span>
+                Rendering…
+              </>
+            ) : (
+              'Save Diagram (Ctrl+S)'
+            )}
           </Button>
         </div>
       </div>

@@ -8,20 +8,59 @@ interface DiagramViewerProps {
   isAnimating: boolean;
   zoom?: number;
   onZoomChange?: (z: number) => void;
+  centerByDefault?: boolean;
 }
 
 export interface DiagramViewerHandle {
   fitToWidth: () => void;
   fitToHeight: () => void;
   resetPan: () => void;
+  centerView: () => void;
 }
 
-const DiagramViewer = forwardRef<DiagramViewerHandle, DiagramViewerProps>(({ svgContent, isAnimating, zoom = 1, onZoomChange }, ref) => {
+const DiagramViewer = forwardRef<DiagramViewerHandle, DiagramViewerProps>(({ svgContent, isAnimating, zoom = 1, onZoomChange, centerByDefault = true }, ref) => {
   const viewerRef = useRef<HTMLDivElement>(null);
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const isPanningRef = useRef(false);
   const panStartRef = useRef<{ x: number; y: number } | null>(null);
   const pointerStartRef = useRef<{ x: number; y: number } | null>(null);
+  const hasCenteredRef = useRef(false);
+
+  const centerView = () => {
+    const dims = getDims();
+    if (!dims) return;
+    const { availWidth, contentWidth, availHeight, contentHeight } = dims;
+    if (contentWidth <= 0 || contentHeight <= 0) return;
+    
+    // For centering at default zoom (1), we need to center the content
+    // Calculate how to position the SVG so its center aligns with the container's center
+    const containerCenterX = availWidth / 2;
+    const containerCenterY = availHeight / 2;
+    const contentCenterX = (contentWidth * zoom) / 2;
+    const contentCenterY = (contentHeight * zoom) / 2;
+    
+    const dx = containerCenterX - contentCenterX;
+    const dy = containerCenterY - contentCenterY;
+    
+    setPan({ x: dx, y: dy });
+  };
+
+  // Center the view on initial render if centerByDefault is true
+  useEffect(() => {
+    if (centerByDefault && svgContent && !hasCenteredRef.current) {
+      // Small delay to ensure SVG is rendered
+      const timer = setTimeout(() => {
+        try {
+          centerView();
+          hasCenteredRef.current = true;
+        } catch (error) {
+          console.warn('Failed to center diagram on initial render:', error);
+        }
+      }, 50);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [svgContent, centerByDefault]);
 
   useEffect(() => {
     if (import.meta.env.DEV) {
@@ -94,7 +133,7 @@ const DiagramViewer = forwardRef<DiagramViewerHandle, DiagramViewerProps>(({ svg
     };
   }, [zoom, pan]);
 
-  // Expose fit methods to parent
+  // Expose methods to parent
   useImperativeHandle(ref, () => ({
     fitToWidth: () => {
       const dims = getDims();
@@ -117,7 +156,8 @@ const DiagramViewer = forwardRef<DiagramViewerHandle, DiagramViewerProps>(({ svg
       setPan(centeredPan);
       onZoomChange?.(scale);
     },
-    resetPan: () => setPan({ x: 0, y: 0 })
+    resetPan: () => setPan({ x: 0, y: 0 }),
+    centerView: () => centerView()
   }));
 
   const centerFor = (scale: number, availW: number, availH: number, contentW: number, contentH: number) => {

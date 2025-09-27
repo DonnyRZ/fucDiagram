@@ -5,6 +5,12 @@
   position: sticky;
   top: 0;
   z-index: 100;
+  box-shadow: var(--shadow-1);
+  transition: box-shadow 0.2s ease;
+}
+
+.app-header.scrolled {
+  box-shadow: var(--shadow-2);
 }
 
 .header-content {
@@ -15,10 +21,11 @@
 }
 
 .header-title {
-  font-size: var(--fs-h1);
-  font-weight: 600;
+  font-size: var(--fs-h2);
+  font-weight: var(--fw-h2);
   margin: 0;
   flex: 1;
+  color: var(--color-text);
 }
 
 .back-button {
@@ -26,16 +33,23 @@
   border: none;
   cursor: pointer;
   padding: 0.5rem;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   min-width: 44px;
   min-height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: all 0.2s ease;
 }
 
 .back-button:hover {
-  background-color: #f1f5f9;
+  background-color: var(--color-gray-100);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-1);
+}
+
+.back-button:active {
+  transform: translateY(0);
 }
 
 .header-actions {
