@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { AnimationEngine } from '../../services/animationEngine';
 import { MermaidRenderer } from '../../services/mermaidRenderer';
-import './PreviewPanel.css';
+import './ZoomablePreviewPanel.css';
 
 interface ZoomablePreviewPanelProps {
   code: string; // Instead of svgContent, accept the mermaid code

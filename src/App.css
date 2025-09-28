@@ -9,6 +9,12 @@
   --color-text-primary-theme: var(--color-text-primary);
   --color-text-secondary-theme: var(--color-text-secondary);
   --color-text-disabled-theme: var(--color-text-disabled);
+  /* Preview panel specific colors */
+  --color-header-bg-theme: var(--color-surface);
+  --color-footer-bg-theme: var(--color-surface);
+  --color-preview-bg-theme: var(--color-background);
+  --color-grid-dot-theme: rgba(0, 0, 0, 0.1);
+  --color-grid-dot-dark-theme: rgba(255, 255, 255, 0.1);
 }
 
 /* Dark theme override */
@@ -20,6 +26,10 @@
   --color-text-primary-theme: var(--color-text-primary-dark);
   --color-text-secondary-theme: var(--color-text-secondary-dark);
   --color-text-disabled-theme: var(--color-text-disabled-dark);
+  /* Preview panel specific dark theme colors */
+  --color-header-bg-theme: var(--color-surface-dark);
+  --color-footer-bg-theme: var(--color-surface-dark);
+  --color-preview-bg-theme: var(--color-background-dark);
 }
 
 * {
@@ -241,6 +251,29 @@ code {
   text-decoration: underline;
 }
 
+/* Save button states */
+.btn-save-unsaved {
+  background-color: var(--color-warning);
+  color: white;
+  position: relative;
+}
+
+.btn-save-unsaved::after {
+  content: "*";
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background-color: red;
+  color: white;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  font-size: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 /* Input styling */
 .input {
   display: block;
@@ -270,4 +303,20 @@ code {
   flex-direction: column;
   flex: 1;
   overflow: hidden;
+}
+
+/* Overlay and sidebar styles */
+.sidebar-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 99;
+  display: none;
+}
+
+.sidebar-overlay.open {
+  display: block;
 }

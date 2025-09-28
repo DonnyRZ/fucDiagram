@@ -8,7 +8,9 @@ interface TopNavigationProps {
   onSaveDiagram: () => void;
   onShareDiagram: () => void;
   onToggleHistory: () => void;
+  onToggleSidebar?: () => void;
   isLoading?: boolean; // Add loading state prop
+  hasUnsavedChanges?: boolean;
 }
 
 const TopNavigation: React.FC<TopNavigationProps> = ({
@@ -16,6 +18,8 @@ const TopNavigation: React.FC<TopNavigationProps> = ({
   onSaveDiagram,
   onShareDiagram,
   onToggleHistory,
+  onToggleSidebar,
+  hasUnsavedChanges,
   isLoading = false
 }) => {
   return (
@@ -39,17 +43,24 @@ const TopNavigation: React.FC<TopNavigationProps> = ({
         <Button 
           variant="secondary" 
           onClick={onSaveDiagram} 
-          className="btn" 
-          title="Save Diagram"
-          disabled={isLoading}
+          className={`btn ${hasUnsavedChanges ? 'btn-save-unsaved' : ''}`}
+          title={hasUnsavedChanges ? "Save Diagram" : "No changes to save"}
+          disabled={isLoading || !hasUnsavedChanges}
         >
-          <Icon name="file" size={18} />
           {isLoading ? (
             <>
               <span className="loading-spinner"></span> Saving...
             </>
+          ) : hasUnsavedChanges ? (
+            <>
+              <Icon name="file" size={18} />
+              Save*
+            </>
           ) : (
-            'Save'
+            <>
+              <Icon name="file" size={18} />
+              Saved
+            </>
           )}
         </Button>
         
@@ -74,6 +85,19 @@ const TopNavigation: React.FC<TopNavigationProps> = ({
           <Icon name="history" size={18} />
           History
         </Button>
+        
+        {onToggleSidebar && (
+          <Button 
+            variant="secondary" 
+            onClick={onToggleSidebar} 
+            className="btn" 
+            title="Show Sidebar"
+            disabled={isLoading}
+          >
+            <Icon name="menu" size={18} />
+            Menu
+          </Button>
+        )}
       </div>
     </header>
   );

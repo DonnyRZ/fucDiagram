@@ -1,0 +1,72 @@
+.config-panel {
+  height: 100%;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+}
+
+.config-section {
+  margin-bottom: 24px;
+}
+
+.config-section h3 {
+  margin: 0 0 12px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-color, #333);
+  border-bottom: 1px solid var(--border-color, #ddd);
+  padding-bottom: 4px;
+}
+
+.config-field {
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+}
+
+.config-field label {
+  margin-bottom: 4px;
+  font-weight: 500;
+  color: var(--text-color, #333);
+  font-size: 14px;
+}
+
+.config-field input,
+.config-field select {
+  padding: 8px 12px;
+  border: 1px solid var(--border-color, #ccc);
+  border-radius: 4px;
+  font-size: 14px;
+  background-color: var(--input-bg, #fff);
+  color: var(--text-color, #333);
+}
+
+.config-field input[type="checkbox"] {
+  width: auto;
+  align-self: flex-start;
+}
+
+.checkbox-field {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+}
+
+.checkbox-field input {
+  width: auto;
+  margin: 0;
+}
+
+.config-field input:focus,
+.config-field select:focus {
+  outline: none;
+  border-color: var(--primary-color, #007acc);
+  box-shadow: 0 0 0 2px rgba(0, 122, 204, 0.2);
+}
+
+.config-actions {
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-color, #ddd);
+}

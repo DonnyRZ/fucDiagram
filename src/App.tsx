@@ -1,11 +1,10 @@
-import { HashRouter as Router, Routes, Route } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { useContext } from 'react';
 import { AppContext } from './context/AppContext';
 import { AppProvider } from './context/AppContext';
 import { ToastProvider } from './context/ToastContext';
-import StartPage from './pages/StartPage';
-import HistoryPage from './pages/HistoryPage';
-import EditorPage from './pages/EditorPage';
+import { NavigationProvider } from './context/NavigationContext';
+import Workspace from './pages/Workspace';
 import './App.css';
 
 const ErrorDisplay = () => {
@@ -28,19 +27,24 @@ function App() {
   return (
     <ToastProvider>
       <AppProvider>
-        <Router>
-          <div className="app-container">
-            <Routes>
-              <Route path="/" element={<StartPage />} />
-              <Route path="/history" element={<HistoryPage />} />
-              <Route path="/canvas" element={<EditorPage />} />
-              <Route path="/canvas/:projectId" element={<EditorPage />} />
-              <Route path="/editor" element={<EditorPage />} />
-              <Route path="/new" element={<EditorPage />} />
-            </Routes>
-            <ErrorDisplay />
-          </div>
-        </Router>
+        <NavigationProvider>
+          <Router>
+            <div className="app-container">
+              <Routes>
+                {/* Redirect old routes to workspace */}
+                <Route path="/" element={<Workspace />} />
+                <Route path="/history" element={<Workspace />} />
+                <Route path="/canvas" element={<Workspace />} />
+                <Route path="/canvas/:projectId" element={<Workspace />} />
+                <Route path="/editor" element={<Workspace />} />
+                <Route path="/new" element={<Workspace />} />
+                {/* Catch-all redirect to workspace */}
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
+              <ErrorDisplay />
+            </div>
+          </Router>
+        </NavigationProvider>
       </AppProvider>
     </ToastProvider>
   );

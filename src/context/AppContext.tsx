@@ -15,6 +15,8 @@ interface AppContextType extends AppState {
   setPreviewPaneSize: (size: number) => void;
   setShowHistory: (show: boolean) => void;
   setTheme: (theme: 'light' | 'dark') => void;
+  setHasUnsavedChanges: (hasChanges: boolean) => void;
+  updateRecentProjects: (project: DiagramProject) => void;
 }
 
 const defaultState: AppState = {
@@ -26,7 +28,9 @@ const defaultState: AppState = {
   editorPaneSize: 40,
   previewPaneSize: 60,
   showHistory: false,
-  theme: 'light'
+  theme: 'light',
+  hasUnsavedChanges: false,
+  recentProjects: []
 };
 
 export const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -124,6 +128,11 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         } catch (updateError) {
           console.error('Failed to update project lastOpened timestamp:', updateError);
         }
+        // Also update recent projects
+        updateRecentProjects({
+          ...project,
+          lastOpened: new Date()
+        });
       } else {
         if (import.meta.env.DEV) console.log('Project not found');
         setState(prev => ({ ...prev, currentProject: null, error: 'Project not found', isLoading: false }));
@@ -203,6 +212,24 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     }
   }, []);
 
+  const setHasUnsavedChanges = useCallback((hasChanges: boolean): void => {
+    setState(prev => ({ ...prev, hasUnsavedChanges: hasChanges }));
+  }, []);
+
+  const updateRecentProjects = useCallback((project: DiagramProject): void => {
+    setState(prev => {
+      // Remove the project if it already exists in the list
+      const filtered = prev.recentProjects.filter(p => p.id !== project.id);
+      // Add the project to the beginning of the list
+      const updated = [
+        { ...project, lastAccessed: new Date() }, 
+        ...filtered
+      ].slice(0, 10); // Keep only the 10 most recent
+      
+      return { ...prev, recentProjects: updated };
+    });
+  }, []);
+
   const value = useMemo(() => ({
     ...state,
     createProject,
@@ -216,8 +243,10 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     setEditorPaneSize,
     setPreviewPaneSize,
     setShowHistory,
-    setTheme
-  }), [state, createProject, updateProject, deleteProject, loadProject, setCurrentProjectCode, toggleAnimation, setAnimating, clearError, setEditorPaneSize, setPreviewPaneSize, setShowHistory, setTheme]);
+    setTheme,
+    setHasUnsavedChanges,
+    updateRecentProjects
+  }), [state, createProject, updateProject, deleteProject, loadProject, setCurrentProjectCode, toggleAnimation, setAnimating, clearError, setEditorPaneSize, setPreviewPaneSize, setShowHistory, setTheme, setHasUnsavedChanges, updateRecentProjects]);
 
   return (
     <AppContext.Provider value={value}>

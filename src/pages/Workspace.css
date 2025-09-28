@@ -1,0 +1,133 @@
+.workspace {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100%;
+  position: relative;
+}
+
+.workspace-main {
+  flex: 1;
+  overflow: auto;
+  position: relative;
+}
+
+.workspace-editor-container {
+  height: calc(100vh - 160px); /* Account for header, tab panel, and top navigation */
+  width: 100%;
+}
+
+/* History view specific styles */
+.workspace-history-view {
+  padding: 20px;
+  height: 100%;
+}
+
+.history-header {
+  margin-bottom: 20px;
+}
+
+.history-header h2 {
+  margin: 0;
+  color: var(--color-text-primary-theme);
+}
+
+/* Templates view specific styles */
+.workspace-templates-view {
+  padding: 20px;
+  height: 100%;
+}
+
+.template-options {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+/* Recent diagrams panel styles */
+.history-panel {
+  padding: 16px;
+  height: 100%;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.history-panel-header {
+  margin-bottom: 16px;
+}
+
+.history-panel-header h3 {
+  margin: 0 0 8px 0;
+  color: var(--color-text-primary-theme);
+  font-size: 16px;
+}
+
+.recent-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.recent-item {
+  padding: 12px;
+  border: 1px solid var(--color-border-theme);
+  border-radius: 4px;
+  cursor: pointer;
+  background-color: var(--color-surface-theme);
+  color: var(--color-text-primary-theme);
+  display: flex;
+  flex-direction: column;
+}
+
+.recent-item:hover {
+  background-color: var(--color-surface-hover-theme);
+}
+
+.recent-item-name {
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.recent-item-date {
+  font-size: 12px;
+  color: var(--color-text-secondary-theme);
+}
+
+.history-panel-footer {
+  margin-top: auto;
+  padding-top: 16px;
+}
+
+/* Overlay for sidebar */
+.sidebar-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 99;
+  display: none;
+}
+
+.sidebar-overlay.open {
+  display: block;
+}
+
+/* Error banner */
+.error-banner {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: var(--color-error);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 4px;
+  z-index: 1000;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
