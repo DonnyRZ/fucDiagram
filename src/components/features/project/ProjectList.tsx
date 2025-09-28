@@ -1,6 +1,6 @@
 import ProjectCard from './ProjectCard';
 import './ProjectList.css';
-import { DiagramProject } from '../types';
+import { DiagramProject } from '../../../types';
 
 interface ProjectListProps {
   projects: DiagramProject[];

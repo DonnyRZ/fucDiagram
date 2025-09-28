@@ -1,0 +1,18 @@
+.editor-page {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.error-banner {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: var(--color-error);
+  color: white;
+  padding: var(--spacing-md);
+  text-align: center;
+  z-index: var(--z-index-modal);
+}

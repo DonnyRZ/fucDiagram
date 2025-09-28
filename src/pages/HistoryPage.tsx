@@ -2,10 +2,10 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../hooks/useApp';
 import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
-import Header from './Header';
-import ProjectList from './ProjectList';
+import Header from '../components/shared/Header';
+import ProjectList from '../components/features/project/ProjectList';
 import './HistoryPage.css';
-import { Button } from './ui/Button';
+import { Button } from '../components/ui/Button';
 
 const HistoryPage = () => {
   const navigate = useNavigate();
@@ -35,7 +35,7 @@ const HistoryPage = () => {
 
   return (
     <div className="history-page">
-      <Header title="My Diagrams" />
+      <Header title="My Diagrams" showBack={true} backPath="/" />
       
       <main className="history-content">
         <div className="search-container">
@@ -52,7 +52,8 @@ const HistoryPage = () => {
           projects={filteredProjects}
           onOpenProject={handleOpenProject}
           onDeleteProject={handleDeleteProject}
-        />
+        >
+        </ProjectList>
         
         {filteredProjects.length === 0 && (
           <div className="empty-state">

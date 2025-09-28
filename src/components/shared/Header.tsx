@@ -1,21 +1,33 @@
 import './Header.css';
-import { Icon } from './ui/Icon';
+import { useNavigate } from 'react-router-dom';
+import { Icon } from '../ui/Icon';
 
 interface HeaderProps {
   title: string;
   showBack?: boolean;
-  onBack?: () => void;
+  backPath?: string; // Optional path to navigate to when back button is clicked
 }
 
-const Header = ({ title, showBack = false, onBack }: HeaderProps) => {
+const Header = ({ title, showBack = false, backPath }: HeaderProps) => {
+  const navigate = useNavigate();
+
+  const handleBack = () => {
+    if (backPath) {
+      navigate(backPath);
+    } else {
+      navigate(-1); // Go back in history
+    }
+  };
+
   return (
     <header className="app-header">
       <div className="header-content">
         {showBack && (
           <button 
             className="back-button touch-target" 
-            onClick={onBack}
+            onClick={handleBack}
             aria-label="Go back"
+            title="Go back"
           >
             <Icon name="back" />
           </button>

@@ -7,7 +7,6 @@ export interface DiagramProject {
   lastOpened: Date;
   versionHistory: ProjectVersion[];
   animationSettings: AnimationSettings;
-  exportSettings: ExportSettings;
 }
 
 export interface ProjectVersion {
@@ -24,11 +23,7 @@ export interface AnimationSettings {
   autoPlay: boolean;
 }
 
-export interface ExportSettings {
-  gifQuality: number;
-  gifSpeed: number;
-  includeAnimation: boolean;
-}
+
 
 export interface AppState {
   projects: DiagramProject[];
@@ -36,4 +31,8 @@ export interface AppState {
   isAnimating: boolean;
   isLoading: boolean;
   error: string | null;
+  editorPaneSize: number;
+  previewPaneSize: number;
+  showHistory: boolean;
+  theme: 'light' | 'dark';
 }

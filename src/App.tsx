@@ -1,31 +1,44 @@
 import { HashRouter as Router, Routes, Route } from 'react-router-dom';
-import { useState } from 'react';
+import { useContext } from 'react';
+import { AppContext } from './context/AppContext';
 import { AppProvider } from './context/AppContext';
 import { ToastProvider } from './context/ToastContext';
-import StartPage from './components/StartPage';
-import HistoryPage from './components/HistoryPage';
-import CanvasPage from './components/CanvasPage';
+import StartPage from './pages/StartPage';
+import HistoryPage from './pages/HistoryPage';
+import EditorPage from './pages/EditorPage';
 import './App.css';
-import BottomNav from './components/BottomNav';
-import Sidebar from './components/Sidebar';
+
+const ErrorDisplay = () => {
+  const { error, clearError } = useContext(AppContext)!;
+  
+  if (!error) return null;
+  
+  return (
+    <div className="error-overlay">
+      <div className="error-modal">
+        <h3>Error</h3>
+        <p>{error}</p>
+        <button onClick={clearError} className="btn btn-primary">Dismiss</button>
+      </div>
+    </div>
+  );
+};
 
 function App() {
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   return (
     <ToastProvider>
       <AppProvider>
         <Router>
-          <div className={`app-container ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
-            <Sidebar collapsed={sidebarCollapsed} onToggle={() => setSidebarCollapsed(v => !v)} />
-            <main className="main">
-              <Routes>
-                <Route path="/" element={<StartPage />} />
-                <Route path="/history" element={<HistoryPage />} />
-                <Route path="/canvas" element={<CanvasPage />} />
-                <Route path="/canvas/:projectId" element={<CanvasPage />} />
-              </Routes>
-              <BottomNav />
-            </main>
+          <div className="app-container">
+            <Routes>
+              <Route path="/" element={<StartPage />} />
+              <Route path="/history" element={<HistoryPage />} />
+              <Route path="/canvas" element={<EditorPage />} />
+              <Route path="/canvas/:projectId" element={<EditorPage />} />
+              <Route path="/editor" element={<EditorPage />} />
+              <Route path="/new" element={<EditorPage />} />
+            </Routes>
+            <ErrorDisplay />
           </div>
         </Router>
       </AppProvider>

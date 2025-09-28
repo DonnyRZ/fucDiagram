@@ -1,6 +1,6 @@
 import './ProjectCard.css';
-import { DiagramProject } from '../types';
-import { Icon } from './ui/Icon';
+import { DiagramProject } from '../../../types';
+import { Icon } from '../../ui/Icon';
 
 interface ProjectCardProps {
   project: DiagramProject;
