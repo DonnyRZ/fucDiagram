@@ -11,6 +11,12 @@ interface AppContextType extends AppState {
   toggleAnimation: () => void;
   setAnimating: (isAnimating: boolean) => void;
   clearError: () => void;
+  setEditorPaneSize: (size: number) => void;
+  setPreviewPaneSize: (size: number) => void;
+  setShowHistory: (show: boolean) => void;
+  setTheme: (theme: 'light' | 'dark') => void;
+  setHasUnsavedChanges: (hasChanges: boolean) => void;
+  updateRecentProjects: (project: DiagramProject) => void;
 }
 
 const defaultState: AppState = {
@@ -18,7 +24,13 @@ const defaultState: AppState = {
   currentProject: null,
   isAnimating: false,
   isLoading: false,
-  error: null
+  error: null,
+  editorPaneSize: 40,
+  previewPaneSize: 60,
+  showHistory: false,
+  theme: 'light',
+  hasUnsavedChanges: false,
+  recentProjects: []
 };
 
 export const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -37,47 +49,54 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const createProject = useCallback((name: string, mermaidCode: string): DiagramProject => {
+    setState(prev => ({ ...prev, isLoading: true }));
     try {
       const project = ProjectManager.createProject(name, mermaidCode);
-      setState(prev => ({
-        ...prev,
-        projects: [...prev.projects, project],
-        currentProject: project
+      setState(prev => ({ 
+        ...prev, 
+        projects: [...prev.projects, project], 
+        currentProject: project,
+        isLoading: false 
       }));
       return project;
     } catch (error) {
-      setState(prev => ({ ...prev, error: 'Failed to create project' }));
+      setState(prev => ({ ...prev, error: 'Failed to create project', isLoading: false }));
       throw error;
     }
   }, []);
 
   const updateProject = useCallback((project: DiagramProject): void => {
+    setState(prev => ({ ...prev, isLoading: true }));
     try {
       ProjectManager.updateProject(project);
       setState(prev => ({
         ...prev,
         projects: prev.projects.map(p => p.id === project.id ? project : p),
-        currentProject: prev.currentProject?.id === project.id ? project : prev.currentProject
+        currentProject: prev.currentProject?.id === project.id ? project : prev.currentProject,
+        isLoading: false
       }));
     } catch (error) {
-      setState(prev => ({ ...prev, error: 'Failed to update project' }));
+      setState(prev => ({ ...prev, error: 'Failed to update project', isLoading: false }));
     }
   }, []);
 
   const deleteProject = useCallback((id: string): void => {
+    setState(prev => ({ ...prev, isLoading: true }));
     try {
       ProjectManager.deleteProject(id);
       setState(prev => ({
         ...prev,
         projects: prev.projects.filter(p => p.id !== id),
-        currentProject: prev.currentProject?.id === id ? null : prev.currentProject
+        currentProject: prev.currentProject?.id === id ? null : prev.currentProject,
+        isLoading: false
       }));
     } catch (error) {
-      setState(prev => ({ ...prev, error: 'Failed to delete project' }));
+      setState(prev => ({ ...prev, error: 'Failed to delete project', isLoading: false }));
     }
   }, []);
 
   const loadProject = useCallback((id: string): void => {
+    setState(prev => ({ ...prev, isLoading: true }));
     try {
       const project = ProjectManager.getProject(id);
       if (import.meta.env.DEV) console.log('Project found:', project);
@@ -93,7 +112,8 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
               ...project,
               lastOpened: new Date()
             },
-            error: null
+            error: null,
+            isLoading: false
           };
         });
         
@@ -108,13 +128,18 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         } catch (updateError) {
           console.error('Failed to update project lastOpened timestamp:', updateError);
         }
+        // Also update recent projects
+        updateRecentProjects({
+          ...project,
+          lastOpened: new Date()
+        });
       } else {
         if (import.meta.env.DEV) console.log('Project not found');
-        setState(prev => ({ ...prev, currentProject: null, error: 'Project not found' }));
+        setState(prev => ({ ...prev, currentProject: null, error: 'Project not found', isLoading: false }));
       }
     } catch (error) {
       console.error('Error loading project:', error);
-      setState(prev => ({ ...prev, error: 'Failed to load project' }));
+      setState(prev => ({ ...prev, error: 'Failed to load project', isLoading: false }));
     }
   }, []);
 
@@ -149,6 +174,62 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     setState(prev => ({ ...prev, error: null }));
   }, []);
 
+  const setEditorPaneSize = useCallback((size: number): void => {
+    setState(prev => {
+      const total = prev.editorPaneSize + prev.previewPaneSize;
+      const previewSize = total - size;
+      return {
+        ...prev,
+        editorPaneSize: size,
+        previewPaneSize: previewSize
+      };
+    });
+  }, []);
+
+  const setPreviewPaneSize = useCallback((size: number): void => {
+    setState(prev => {
+      const total = prev.editorPaneSize + prev.previewPaneSize;
+      const editorSize = total - size;
+      return {
+        ...prev,
+        editorPaneSize: editorSize,
+        previewPaneSize: size
+      };
+    });
+  }, []);
+
+  const setShowHistory = useCallback((show: boolean): void => {
+    setState(prev => ({ ...prev, showHistory: show }));
+  }, []);
+
+  const setTheme = useCallback((theme: 'light' | 'dark'): void => {
+    setState(prev => ({ ...prev, theme }));
+    // Update the class on the document for CSS theme switching
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, []);
+
+  const setHasUnsavedChanges = useCallback((hasChanges: boolean): void => {
+    setState(prev => ({ ...prev, hasUnsavedChanges: hasChanges }));
+  }, []);
+
+  const updateRecentProjects = useCallback((project: DiagramProject): void => {
+    setState(prev => {
+      // Remove the project if it already exists in the list
+      const filtered = prev.recentProjects.filter(p => p.id !== project.id);
+      // Add the project to the beginning of the list
+      const updated = [
+        { ...project, lastAccessed: new Date() }, 
+        ...filtered
+      ].slice(0, 10); // Keep only the 10 most recent
+      
+      return { ...prev, recentProjects: updated };
+    });
+  }, []);
+
   const value = useMemo(() => ({
     ...state,
     createProject,
@@ -158,8 +239,14 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     setCurrentProjectCode,
     toggleAnimation,
     setAnimating,
-    clearError
-  }), [state, createProject, updateProject, deleteProject, loadProject, setCurrentProjectCode, toggleAnimation, setAnimating, clearError]);
+    clearError,
+    setEditorPaneSize,
+    setPreviewPaneSize,
+    setShowHistory,
+    setTheme,
+    setHasUnsavedChanges,
+    updateRecentProjects
+  }), [state, createProject, updateProject, deleteProject, loadProject, setCurrentProjectCode, toggleAnimation, setAnimating, clearError, setEditorPaneSize, setPreviewPaneSize, setShowHistory, setTheme, setHasUnsavedChanges, updateRecentProjects]);
 
   return (
     <AppContext.Provider value={value}>

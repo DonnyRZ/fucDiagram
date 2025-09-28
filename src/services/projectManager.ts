@@ -39,11 +39,6 @@ export class ProjectManager {
         speed: 'medium',
         style: 'flow',
         autoPlay: false
-      },
-      exportSettings: {
-        gifQuality: 80,
-        gifSpeed: 100,
-        includeAnimation: true
       }
     };
 

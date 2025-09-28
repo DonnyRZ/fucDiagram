@@ -1,0 +1,52 @@
+.recent-diagrams-section {
+  margin-bottom: 24px;
+  padding: 16px;
+  background-color: var(--color-surface-theme);
+  border-radius: 8px;
+  border: 1px solid var(--color-border-theme);
+}
+
+.recent-diagrams-section h3 {
+  margin: 0 0 12px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-text-primary-theme);
+}
+
+.recent-diagrams-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.recent-diagram-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  border-radius: 4px;
+  border: 1px solid var(--color-border-theme);
+  background-color: var(--color-surface-theme);
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.recent-diagram-item:hover {
+  background-color: var(--color-surface-hover-theme);
+}
+
+.recent-diagram-name {
+  font-weight: 500;
+  color: var(--color-text-primary-theme);
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.recent-diagram-date {
+  font-size: 12px;
+  color: var(--color-text-secondary-theme);
+  white-space: nowrap;
+  margin-left: 12px;
+}

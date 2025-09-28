@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { MermaidRenderer } from '../services/mermaidRenderer';
 
 export const useMermaidRenderer = () => {
@@ -7,9 +7,15 @@ export const useMermaidRenderer = () => {
   const [error, setError] = useState<string | null>(null);
   const [diagramType, setDiagramType] = useState<string | null>(null);
   const lastRenderParams = useRef<{code: string, id: string} | null>(null);
+  const renderTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const render = useCallback(async (code: string, id: string) => {
     if (import.meta.env.DEV) console.log('useMermaidRenderer - render called with:', { code, id });
+    
+    // Clear any existing timeout
+    if (renderTimeoutRef.current) {
+      clearTimeout(renderTimeoutRef.current);
+    }
     
     // Check if we're already rendering with the same parameters
     if (lastRenderParams.current && 
@@ -26,6 +32,7 @@ export const useMermaidRenderer = () => {
       console.log('useMermaidRenderer - empty code, setting svg to null');
       setSvg(null);
       setDiagramType(null);
+      setError(null);
       return;
     }
 
@@ -58,5 +65,25 @@ export const useMermaidRenderer = () => {
     }
   }, []);
 
-  return { render, isRendering, svg, error, diagramType };
+  // Debounced render function for editor scenarios
+  const renderDebounced = useCallback((code: string, id: string, delay: number = 500) => {
+    if (renderTimeoutRef.current) {
+      clearTimeout(renderTimeoutRef.current);
+    }
+    
+    renderTimeoutRef.current = setTimeout(() => {
+      render(code, id);
+    }, delay);
+  }, [render]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (renderTimeoutRef.current) {
+        clearTimeout(renderTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  return { render, renderDebounced, isRendering, svg, error, diagramType };
 };
