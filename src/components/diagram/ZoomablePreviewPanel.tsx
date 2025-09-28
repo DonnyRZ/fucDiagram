@@ -21,6 +21,11 @@ const ZoomablePreviewPanel: React.FC<ZoomablePreviewPanelProps> = ({
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
+    // Initialize cursor
+    if (containerRef.current) {
+      containerRef.current.style.cursor = 'grab';
+    }
+    
     let isMounted = true;
     
     const renderDiagram = async () => {
@@ -44,25 +49,33 @@ const ZoomablePreviewPanel: React.FC<ZoomablePreviewPanelProps> = ({
         const { svg } = await MermaidRenderer.render(renderId, code);
         
         // FOLLOW MERMAID-LIVE-EDITOR PATTERN EXACTLY:
-        // Replace entire container content with rendered SVG
-        if (isMounted && containerRef.current) {
-          containerRef.current.innerHTML = svg;
-          
-          // Query for the rendered element within the PERSISTENT container
-          const renderedElement = containerRef.current.querySelector(`#${renderId}`);
-          if (renderedElement) {
-            // Apply initial styling for proper display
-            (renderedElement as SVGElement).style.maxWidth = '100%';
-            (renderedElement as SVGElement).style.height = 'auto';
-            
-            if (isAnimating) {
-              AnimationEngine.injectAnimationStyles(containerRef.current);
-              AnimationEngine.applyAnimation(renderedElement as SVGElement, 'flow');
-            } else {
-              AnimationEngine.removeAnimation(renderedElement as SVGElement);
-            }
-          }
+    // Replace entire container content with rendered SVG
+    if (isMounted && containerRef.current) {
+      containerRef.current.innerHTML = svg;
+      
+      // Query for the rendered element within the PERSISTENT container
+      const renderedElement = containerRef.current.querySelector(`#${renderId}`);
+      if (renderedElement) {
+        // Apply initial styling for proper display
+        (renderedElement as SVGElement).style.maxWidth = '100%';
+        (renderedElement as SVGElement).style.height = 'auto';
+        (renderedElement as SVGElement).style.position = 'relative'; // Ensure proper stacking
+        (renderedElement as SVGElement).style.zIndex = '1'; // Keep SVG below header/footer
+        (renderedElement as SVGElement).style.transformOrigin = 'center center';
+        (renderedElement as SVGElement).style.cursor = 'grab';
+        
+        // Apply initial transform
+        (renderedElement as SVGElement).style.transform = `scale(${scale}) translate(${position.x}px, ${position.y}px)`;
+        (renderedElement as SVGElement).style.transformOrigin = 'center center';
+        
+        if (isAnimating) {
+          AnimationEngine.injectAnimationStyles(containerRef.current);
+          AnimationEngine.applyAnimation(renderedElement as SVGElement, 'flow');
+        } else {
+          AnimationEngine.removeAnimation(renderedElement as SVGElement);
         }
+      }
+    }
       } catch (error) {
         console.error('Error rendering diagram:', error);
         if (isMounted && containerRef.current) {
@@ -82,7 +95,28 @@ const ZoomablePreviewPanel: React.FC<ZoomablePreviewPanelProps> = ({
   useEffect(() => {
     setScale(1);
     setPosition({ x: 0, y: 0 });
+    
+    // Also update the SVG transform immediately
+    if (containerRef.current) {
+      const svgElement = containerRef.current.querySelector('svg');
+      if (svgElement) {
+        (svgElement as SVGElement).style.transform = 'scale(1) translate(0px, 0px)';
+        (svgElement as SVGElement).style.transformOrigin = 'center center';
+      }
+    }
   }, [code]);
+
+  // Apply zoom transform directly to the SVG element when scale or position changes
+  useEffect(() => {
+    if (containerRef.current) {
+      const svgElement = containerRef.current.querySelector('svg');
+      if (svgElement) {
+        // Apply transform only to the SVG, not the entire container
+        (svgElement as SVGElement).style.transform = `scale(${scale}) translate(${position.x}px, ${position.y}px)`;
+        (svgElement as SVGElement).style.transformOrigin = 'center center';
+      }
+    }
+  }, [scale, position]);
 
   const handleZoomIn = useCallback(() => {
     setScale(prev => Math.min(prev + 0.2, 3)); // Max zoom 3x
@@ -121,7 +155,14 @@ const ZoomablePreviewPanel: React.FC<ZoomablePreviewPanelProps> = ({
       y: e.clientY - position.y
     });
     e.preventDefault(); // Prevent text selection
+    
+    // Update cursor on the container
+    if (containerRef.current) {
+      containerRef.current.style.cursor = 'grabbing';
+    }
   }, [position]);
+
+  
 
   const handleMouseMove = useCallback((e: MouseEvent) => {
     if (!isDragging) return;
@@ -133,6 +174,11 @@ const ZoomablePreviewPanel: React.FC<ZoomablePreviewPanelProps> = ({
 
   const handleMouseUp = useCallback(() => {
     setIsDragging(false);
+    
+    // Reset cursor on the container
+    if (containerRef.current) {
+      containerRef.current.style.cursor = 'grab';
+    }
   }, []);
 
   useEffect(() => {
@@ -144,12 +190,20 @@ const ZoomablePreviewPanel: React.FC<ZoomablePreviewPanelProps> = ({
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
       document.body.style.userSelect = '';
+      // Reset cursor when not dragging
+      if (containerRef.current) {
+        containerRef.current.style.cursor = 'grab';
+      }
     }
 
     return () => {
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
       document.body.style.userSelect = '';
+      // Reset cursor on cleanup
+      if (containerRef.current) {
+        containerRef.current.style.cursor = 'grab';
+      }
     };
   }, [isDragging, handleMouseMove, handleMouseUp]);
 
@@ -209,16 +263,16 @@ const ZoomablePreviewPanel: React.FC<ZoomablePreviewPanelProps> = ({
         </div>
       </div>
       
-      <div 
-        className="preview-content" 
-        ref={containerRef}
-        onMouseDown={handleMouseDown}
-        style={{
-          cursor: isDragging ? 'grabbing' : 'grab',
-          transform: `scale(${scale}) translate(${position.x}px, ${position.y}px)`,
-          transformOrigin: 'center center'
-        }}
-      />
+      <div className="preview-content-wrapper">
+        <div 
+          className="preview-content" 
+          ref={containerRef}
+          onMouseDown={handleMouseDown}
+          style={{
+            cursor: isDragging ? 'grabbing' : 'grab',
+          }}
+        />
+      </div>
       
       <div className="preview-footer">
         <div className="preview-status">
