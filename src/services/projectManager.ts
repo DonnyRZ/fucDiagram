@@ -6,9 +6,7 @@ export class ProjectManager {
   static getAllProjects(): DiagramProject[] {
     try {
       const data = localStorage.getItem(STORAGE_KEY);
-      console.log('ProjectManager - getAllProjects - raw data:', data);
       const result = data ? JSON.parse(data, this.dateReviver) : [];
-      console.log('ProjectManager - getAllProjects - parsed result:', result);
       return result;
     } catch (error) {
       console.error('Error loading projects from localStorage:', error);
@@ -17,11 +15,8 @@ export class ProjectManager {
   }
 
   static getProject(id: string): DiagramProject | null {
-    console.log('ProjectManager - getProject - id:', id);
     const projects = this.getAllProjects();
-    console.log('ProjectManager - getProject - all projects:', projects);
     const result = projects.find(p => p.id === id) || null;
-    console.log('ProjectManager - getProject - result:', result);
     return result;
   }
 

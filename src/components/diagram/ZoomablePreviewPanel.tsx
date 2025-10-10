@@ -19,6 +19,9 @@ const ZoomablePreviewPanel: React.FC<ZoomablePreviewPanelProps> = ({
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const svgCacheRef = useRef<Record<string, string>>({});
+  const [cachedRenderId, setCachedRenderId] = useState<string | null>(null);
+  const [cachedSvg, setCachedSvg] = useState<string | null>(null);
 
   useEffect(() => {
     // Initialize cursor
@@ -37,6 +40,44 @@ const ZoomablePreviewPanel: React.FC<ZoomablePreviewPanelProps> = ({
       }
       
       try {
+        // Check if we have a cached version of this SVG
+        const svgCacheKey = `${code}-${isAnimating}`;
+        const cachedSvg = svgCacheRef.current[svgCacheKey];
+        
+        if (cachedSvg && containerRef.current) {
+          // Use cached SVG if available
+          const parser = new DOMParser();
+          const doc = parser.parseFromString(cachedSvg, 'image/svg+xml');
+          const svgElement = doc.querySelector('svg');
+          
+          if (svgElement) {
+            // Clear container
+            containerRef.current.innerHTML = '';
+            
+            // Append the parsed SVG element
+            containerRef.current.appendChild(svgElement);
+            
+            // Apply styling and transform
+            svgElement.style.maxWidth = '100%';
+            svgElement.style.height = 'auto';
+            svgElement.style.position = 'relative';
+            svgElement.style.zIndex = '1';
+            svgElement.style.transformOrigin = 'center center';
+            svgElement.style.cursor = 'grab';
+            svgElement.style.transform = `scale(${scale}) translate(${position.x}px, ${position.y}px)`;
+            svgElement.style.transformOrigin = 'center center';
+            
+            // Apply animation if needed
+            if (isAnimating) {
+              AnimationEngine.injectAnimationStyles(containerRef.current);
+              AnimationEngine.applyAnimation(svgElement, 'flow');
+            } else {
+              AnimationEngine.removeAnimation(svgElement);
+            }
+            return;
+          }
+        }
+        
         // Show loading state
         if (isMounted && containerRef.current) {
           containerRef.current.innerHTML = '<div class="preview-placeholder">Rendering diagram...</div>';
@@ -48,34 +89,46 @@ const ZoomablePreviewPanel: React.FC<ZoomablePreviewPanelProps> = ({
         // Render diagram to get SVG string (following mermaid-live-editor pattern)
         const { svg } = await MermaidRenderer.render(renderId, code);
         
-        // FOLLOW MERMAID-LIVE-EDITOR PATTERN EXACTLY:
-    // Replace entire container content with rendered SVG
-    if (isMounted && containerRef.current) {
-      containerRef.current.innerHTML = svg;
-      
-      // Query for the rendered element within the PERSISTENT container
-      const renderedElement = containerRef.current.querySelector(`#${renderId}`);
-      if (renderedElement) {
-        // Apply initial styling for proper display
-        (renderedElement as SVGElement).style.maxWidth = '100%';
-        (renderedElement as SVGElement).style.height = 'auto';
-        (renderedElement as SVGElement).style.position = 'relative'; // Ensure proper stacking
-        (renderedElement as SVGElement).style.zIndex = '1'; // Keep SVG below header/footer
-        (renderedElement as SVGElement).style.transformOrigin = 'center center';
-        (renderedElement as SVGElement).style.cursor = 'grab';
-        
-        // Apply initial transform
-        (renderedElement as SVGElement).style.transform = `scale(${scale}) translate(${position.x}px, ${position.y}px)`;
-        (renderedElement as SVGElement).style.transformOrigin = 'center center';
-        
-        if (isAnimating) {
-          AnimationEngine.injectAnimationStyles(containerRef.current);
-          AnimationEngine.applyAnimation(renderedElement as SVGElement, 'flow');
-        } else {
-          AnimationEngine.removeAnimation(renderedElement as SVGElement);
+        // Safely parse and insert the SVG content
+        if (isMounted && containerRef.current) {
+          // Parse the SVG string safely
+          const parser = new DOMParser();
+          const doc = parser.parseFromString(svg, 'image/svg+xml');
+          const svgElement = doc.querySelector('svg');
+          
+          if (svgElement) {
+            // Clear container
+            containerRef.current.innerHTML = '';
+            
+            // Append the parsed SVG element
+            containerRef.current.appendChild(svgElement);
+            
+            // Apply initial styling for proper display
+            svgElement.style.maxWidth = '100%';
+            svgElement.style.height = 'auto';
+            svgElement.style.position = 'relative'; // Ensure proper stacking
+            svgElement.style.zIndex = '1'; // Keep SVG below header/footer
+            svgElement.style.transformOrigin = 'center center';
+            svgElement.style.cursor = 'grab';
+            
+            // Apply initial transform
+            svgElement.style.transform = `scale(${scale}) translate(${position.x}px, ${position.y}px)`;
+            svgElement.style.transformOrigin = 'center center';
+            
+            if (isAnimating) {
+              AnimationEngine.injectAnimationStyles(containerRef.current);
+              AnimationEngine.applyAnimation(svgElement, 'flow');
+            } else {
+              AnimationEngine.removeAnimation(svgElement);
+            }
+            
+            // Cache the SVG for faster re-rendering with same code
+            svgCacheRef.current[svgCacheKey] = svg;
+          } else {
+            // If parsing failed, display an error
+            containerRef.current.innerHTML = '<div class="preview-placeholder">Error parsing diagram SVG</div>';
+          }
         }
-      }
-    }
       } catch (error) {
         console.error('Error rendering diagram:', error);
         if (isMounted && containerRef.current) {
@@ -186,14 +239,6 @@ const ZoomablePreviewPanel: React.FC<ZoomablePreviewPanelProps> = ({
       document.addEventListener('mousemove', handleMouseMove);
       document.addEventListener('mouseup', handleMouseUp);
       document.body.style.userSelect = 'none'; // Disable text selection while dragging
-    } else {
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseup', handleMouseUp);
-      document.body.style.userSelect = '';
-      // Reset cursor when not dragging
-      if (containerRef.current) {
-        containerRef.current.style.cursor = 'grab';
-      }
     }
 
     return () => {
@@ -268,10 +313,49 @@ const ZoomablePreviewPanel: React.FC<ZoomablePreviewPanelProps> = ({
           className="preview-content" 
           ref={containerRef}
           onMouseDown={handleMouseDown}
+          onKeyDown={(e) => {
+            // Add keyboard controls for zooming and panning
+            switch(e.key) {
+              case '+':
+              case '=':
+                handleZoomIn();
+                e.preventDefault();
+                break;
+              case '-':
+                handleZoomOut();
+                e.preventDefault();
+                break;
+              case '0':
+                handleFitToScreen();
+                e.preventDefault();
+                break;
+              case 'ArrowLeft':
+                setPosition(prev => ({...prev, x: prev.x - 20}));
+                e.preventDefault();
+                break;
+              case 'ArrowRight':
+                setPosition(prev => ({...prev, x: prev.x + 20}));
+                e.preventDefault();
+                break;
+              case 'ArrowUp':
+                setPosition(prev => ({...prev, y: prev.y - 20}));
+                e.preventDefault();
+                break;
+              case 'ArrowDown':
+                setPosition(prev => ({...prev, y: prev.y + 20}));
+                e.preventDefault();
+                break;
+            }
+          }}
+          tabIndex={0}
+          role="img"
+          aria-label="Diagram preview"
+          aria-describedby="diagram-description"
           style={{
             cursor: isDragging ? 'grabbing' : 'grab',
           }}
         />
+        <div id="diagram-description" className="sr-only">Interactive diagram preview. Use arrow keys to pan, +/- to zoom, and 0 to fit.</div>
       </div>
       
       <div className="preview-footer">

@@ -9,7 +9,7 @@ interface TopNavigationProps {
   onShareDiagram: () => void;
   onToggleHistory: () => void;
   onToggleSidebar?: () => void;
-  isLoading?: boolean; // Add loading state prop
+  isLoading?: boolean;
   hasUnsavedChanges?: boolean;
 }
 

@@ -4,7 +4,7 @@ import mermaid from 'mermaid';
 mermaid.initialize({ 
   startOnLoad: false,
   theme: 'default',
-  securityLevel: 'loose', // Changed from 'strict' to 'loose' to allow more functionality
+  securityLevel: 'strict', // Changed from 'loose' to 'strict' for better security
   fontFamily: 'inherit',
   fontSize: 16,
   // Enable diagram-specific configurations
@@ -22,7 +22,7 @@ mermaid.initialize({
 export class MermaidRenderer {
   static async render(id: string, code: string): Promise<{ svg: string; diagramType: string }> {
     try {
-      if (import.meta.env.DEV) console.log('MermaidRenderer - render called with:', { id, code });
+
       // Clean the code by removing extra whitespace
       const cleanCode = code.trim();
       
@@ -54,7 +54,12 @@ export class MermaidRenderer {
         throw new Error('Empty SVG returned from Mermaid');
       }
       
-      if (import.meta.env.DEV) console.log('MermaidRenderer - processed svg:', svg);
+      // Basic security check - ensure SVG doesn't contain dangerous elements
+      if (svg.toLowerCase().includes('<script') || svg.toLowerCase().includes('javascript:')) {
+        throw new Error('SVG contains potentially dangerous content');
+      }
+      
+
       return { svg, diagramType: 'unknown' }; // diagramType extraction not directly supported in this version
     } catch (error: unknown) {
       console.error('Mermaid rendering error:', error);

@@ -13,7 +13,8 @@ type IconName =
   | 'back'
   | 'trash'
   | 'sun'
-  | 'moon';
+  | 'moon'
+  | 'menu';
 
 interface IconProps {
   name: IconName;
@@ -44,6 +45,11 @@ const paths: Record<IconName, React.ReactNode> = {
   </>,
   moon: <>
     <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+  </>,
+  menu: <>
+    <path d="M3 12h18"/>
+    <path d="M3 6h18"/>
+    <path d="M3 18h18"/>
   </>
 };
 

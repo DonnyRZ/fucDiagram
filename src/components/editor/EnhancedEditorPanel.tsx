@@ -6,9 +6,9 @@ import './EnhancedEditorPanel.css';
 
 interface EnhancedEditorPanelProps {
   code: string;
-  config: any; // Mermaid config
+  config: Record<string, any>; // Mermaid config
   onCodeChange: (code: string) => void;
-  onConfigChange: (config: any) => void; // Mermaid config
+  onConfigChange: (config: Record<string, any>) => void; // Mermaid config
   isRendering: boolean;
   hasUnsavedChanges?: boolean;
 }

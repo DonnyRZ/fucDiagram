@@ -99,13 +99,10 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     setState(prev => ({ ...prev, isLoading: true }));
     try {
       const project = ProjectManager.getProject(id);
-      if (import.meta.env.DEV) console.log('Project found:', project);
+
       if (project) {
         setState(prev => {
-          if (import.meta.env.DEV) console.log('Setting current project in state:', {
-            ...project,
-            lastOpened: new Date()
-          });
+    
           return {
             ...prev,
             currentProject: {
@@ -134,7 +131,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
           lastOpened: new Date()
         });
       } else {
-        if (import.meta.env.DEV) console.log('Project not found');
+
         setState(prev => ({ ...prev, currentProject: null, error: 'Project not found', isLoading: false }));
       }
     } catch (error) {
