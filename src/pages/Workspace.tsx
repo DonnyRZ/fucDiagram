@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useApp } from '../hooks/useApp';
+import InteractiveFlowEditor from '../components/diagram/InteractiveFlowEditor';
 import { useNavigation } from '../context/NavigationContext';
 import { useMermaidRenderer } from '../hooks/useMermaidRenderer';
 import { useToast } from '../context/ToastContext';
@@ -37,7 +38,9 @@ const Workspace: React.FC = () => {
     hasUnsavedChanges,
     setHasUnsavedChanges,
     recentProjects,
-    updateRecentProjects
+    updateRecentProjects,
+    editorMode,
+    setEditorMode
   } = useApp();
   const { 
     currentView, 
@@ -247,8 +250,27 @@ const Workspace: React.FC = () => {
 
     // Default to editor view
     return (
-      <>
-        <div className="workspace-editor-container">
+      <div className="workspace-editor-container">
+        {editorMode === 'flow' ? (
+          // Show Interactive Flow Editor - full height container
+          <div className="h-full flex flex-col">
+            <div className="flow-editor-header p-3 bg-gray-50 border-b flex items-center justify-between">
+              <h2 className="font-semibold">Interactive Flow Editor</h2>
+              <button 
+                className="btn btn-secondary"
+                onClick={() => setEditorMode('mermaid')}
+              >
+                Switch to Mermaid Editor
+              </button>
+            </div>
+            <div className="flex-1 h-full w-full" style={{ minHeight: '500px' }}>
+              <InteractiveFlowEditor 
+                initialCode={code}
+              />
+            </div>
+          </div>
+        ) : (
+          // Show Mermaid Editor
           <AdvancedResizablePane 
             initialSizes={[30, 50, 20]}
             showHistory={showHistory}
@@ -313,8 +335,8 @@ const Workspace: React.FC = () => {
               </div>
             }
           />
-        </div>
-      </>
+        )}
+      </div>
     );
   };
 
@@ -351,6 +373,8 @@ const Workspace: React.FC = () => {
           setShowHistory(!showHistory);
         }}
         onToggleSidebar={handleToggleSidebar}
+        onToggleEditorMode={() => setEditorMode(editorMode === 'mermaid' ? 'flow' : 'mermaid')}
+        editorMode={editorMode}
         isLoading={isLoading}
         hasUnsavedChanges={hasUnsavedChanges}
       />

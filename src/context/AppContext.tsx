@@ -17,6 +17,7 @@ interface AppContextType extends AppState {
   setTheme: (theme: 'light' | 'dark') => void;
   setHasUnsavedChanges: (hasChanges: boolean) => void;
   updateRecentProjects: (project: DiagramProject) => void;
+  setEditorMode: (mode: 'mermaid' | 'flow') => void;
 }
 
 const defaultState: AppState = {
@@ -30,7 +31,8 @@ const defaultState: AppState = {
   showHistory: false,
   theme: 'light',
   hasUnsavedChanges: false,
-  recentProjects: []
+  recentProjects: [],
+  editorMode: 'mermaid'
 };
 
 export const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -213,6 +215,10 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     setState(prev => ({ ...prev, hasUnsavedChanges: hasChanges }));
   }, []);
 
+  const setEditorMode = useCallback((mode: 'mermaid' | 'flow'): void => {
+    setState(prev => ({ ...prev, editorMode: mode }));
+  }, []);
+
   const updateRecentProjects = useCallback((project: DiagramProject): void => {
     setState(prev => {
       // Remove the project if it already exists in the list
@@ -242,8 +248,9 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     setShowHistory,
     setTheme,
     setHasUnsavedChanges,
+    setEditorMode,
     updateRecentProjects
-  }), [state, createProject, updateProject, deleteProject, loadProject, setCurrentProjectCode, toggleAnimation, setAnimating, clearError, setEditorPaneSize, setPreviewPaneSize, setShowHistory, setTheme, setHasUnsavedChanges, updateRecentProjects]);
+  }), [state, createProject, updateProject, deleteProject, loadProject, setCurrentProjectCode, toggleAnimation, setAnimating, clearError, setEditorPaneSize, setPreviewPaneSize, setShowHistory, setTheme, setHasUnsavedChanges, setEditorMode, updateRecentProjects]);
 
   return (
     <AppContext.Provider value={value}>

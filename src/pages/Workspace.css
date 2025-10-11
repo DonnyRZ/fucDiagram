@@ -131,3 +131,12 @@
   z-index: 1000;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
+
+/* Flow editor header */
+.flow-editor-header {
+  border-bottom: 1px solid var(--color-border-theme);
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
