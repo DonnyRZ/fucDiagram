@@ -84,6 +84,8 @@ export class MermaidConverter {
         type: 'default',
         position: pos,
         data: { label },
+        sourcePosition: 'right',
+        targetPosition: 'left',
       });
     }
     

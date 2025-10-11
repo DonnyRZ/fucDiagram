@@ -3,82 +3,118 @@
   flex-direction: row;
   height: 100%;
   width: 100%;
+  background: linear-gradient(135deg, var(--color-surface-theme) 0%, var(--color-background-theme) 100%);
+  border-radius: var(--border-radius-lg);
+  overflow: hidden;
+  box-shadow: inset 0 0 0 1px var(--color-border-theme);
 }
 
 .pane {
   height: 100%;
-  overflow: auto;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
+  background-color: var(--color-surface-theme);
+  border-radius: var(--border-radius-md);
+  margin: var(--spacing-sm);
+  box-shadow: var(--shadow-sm);
 }
 
 .editor-preview-pane {
-  border-right: 1px solid var(--border-color, #ccc);
+  border-right: none;
 }
 
 .preview-pane {
-  border-right: 1px solid var(--border-color, #ccc);
+  border-right: none;
 }
 
 .history-pane {
-  border-left: 1px solid var(--border-color, #ccc);
+  border-left: none;
 }
 
 .resizer {
   position: relative;
-  width: 4px;
-  background: var(--border-color, #ccc);
+  width: 6px;
+  background: var(--color-border-theme);
   cursor: col-resize;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background-color 0.2s;
+  transition: all 0.2s ease;
+  border-radius: 2px;
+  margin: var(--spacing-xs) 0;
 }
 
 .resizer:hover {
-  background: var(--primary-color, #007acc);
+  background: var(--color-primary);
+  transform: scale(1.2);
 }
 
 .resizer::before {
-  content: '';
+  content: '⋮';
   position: absolute;
-  height: 30px;
-  width: 2px;
-  background: currentColor;
-  transition: opacity 0.2s;
+  font-size: 16px;
+  color: var(--color-text-secondary-theme);
+  opacity: 0.6;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  user-select: none;
 }
 
 .resizer:hover::before {
-  opacity: 0.5;
+  opacity: 1;
+  color: white;
 }
 
 .tab-container {
   display: flex;
   flex-direction: column;
   height: 100%;
+  border-radius: var(--border-radius-md);
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .tab-header {
   display: flex;
-  border-bottom: 1px solid var(--border-color, #ccc);
-  background-color: var(--background-color, #f5f5f5);
+  border-bottom: 1px solid var(--color-border-theme);
+  background: linear-gradient(135deg, var(--color-surface-theme) 0%, var(--color-background-theme) 100%);
+  padding: 0;
 }
 
 .tab-button {
-  padding: 8px 16px;
+  padding: var(--spacing-md) var(--spacing-lg);
   border: none;
   background: transparent;
   cursor: pointer;
-  font-size: 14px;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary-theme);
   border-bottom: 2px solid transparent;
+  transition: all var(--transition-fast);
+  position: relative;
+  min-width: 100px;
+  text-align: center;
+}
+
+.tab-button:hover {
+  color: var(--color-text-primary-theme);
+  background-color: var(--color-surface-hover-theme);
 }
 
 .tab-button.active {
-  border-bottom: 2px solid var(--primary-color, #007acc);
-  background-color: rgba(0, 122, 204, 0.1);
+  color: var(--color-primary);
+  border-bottom: 2px solid var(--color-primary);
+  background-color: rgba(99, 102, 241, 0.05);
+  font-weight: var(--font-weight-semibold);
 }
 
 .tab-content {
   flex: 1;
-  overflow: auto;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }

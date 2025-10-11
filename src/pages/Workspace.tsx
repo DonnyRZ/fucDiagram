@@ -254,10 +254,55 @@ const Workspace: React.FC = () => {
         {editorMode === 'flow' ? (
           // Show Interactive Flow Editor - full height container
           <div className="h-full flex flex-col">
-            <div className="flow-editor-header p-3 bg-gray-50 border-b flex items-center justify-between">
-              <h2 className="font-semibold">Interactive Flow Editor</h2>
+            <div 
+              className="flow-editor-header" 
+              style={{
+                padding: 'var(--spacing-md) var(--spacing-lg)',
+                backgroundColor: 'var(--color-surface)',
+                borderBottom: '1px solid var(--color-border)',
+                fontSize: 'var(--font-size-base)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                boxShadow: 'var(--shadow)',
+              }}
+            >
+              <h2 
+                style={{
+                  margin: 0,
+                  color: 'var(--color-text-primary)',
+                  fontSize: 'var(--font-size-lg)',
+                  fontWeight: 'var(--font-weight-semibold)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 'var(--spacing-sm)',
+                }}
+              >
+                <span 
+                  style={{
+                    display: 'inline-block',
+                    width: '8px',
+                    height: '8px',
+                    borderRadius: '50%',
+                    backgroundColor: 'var(--color-primary)',
+                    boxShadow: '0 0 8px var(--color-primary-light)',
+                  }}
+                ></span>
+                Interactive Flow Editor
+              </h2>
               <button 
-                className="btn btn-secondary"
+                style={{
+                  backgroundColor: 'var(--color-primary)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: 'var(--border-radius-sm)',
+                  padding: 'var(--spacing-sm) var(--spacing-md)',
+                  fontSize: 'var(--font-size-sm)',
+                  fontWeight: 'var(--font-weight-medium)',
+                  cursor: 'pointer',
+                  transition: 'all var(--transition-fast)',
+                  boxShadow: 'var(--shadow)',
+                }}
                 onClick={() => setEditorMode('mermaid')}
               >
                 Switch to Mermaid Editor

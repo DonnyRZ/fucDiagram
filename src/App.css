@@ -170,17 +170,24 @@ code {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: var(--spacing-md) var(--spacing-lg);
+  padding: var(--spacing-lg) var(--spacing-xl);
   border-bottom: var(--border-width) solid var(--color-border-theme);
-  background-color: var(--color-surface-theme);
-  min-height: 64px;
+  background: linear-gradient(135deg, var(--color-surface-theme) 0%, var(--color-background-theme) 100%);
+  min-height: 72px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .header-title {
   margin: 0;
-  font-size: var(--font-size-xl);
-  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
   color: var(--color-text-primary-theme);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-align: center;
+  flex: 1;
 }
 
 /* Toolbar styling */
@@ -191,6 +198,7 @@ code {
   padding: var(--spacing-md);
   border-bottom: var(--border-width) solid var(--color-border-theme);
   background-color: var(--color-surface-theme);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 /* Status bar styling */
@@ -198,11 +206,12 @@ code {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: var(--spacing-sm) var(--spacing-md);
+  padding: var(--spacing-md) var(--spacing-lg);
   border-top: var(--border-width) solid var(--color-border-theme);
-  background-color: var(--color-surface-theme);
+  background: linear-gradient(135deg, var(--color-background-theme) 0%, var(--color-surface-theme) 100%);
   font-size: var(--font-size-sm);
   color: var(--color-text-secondary-theme);
+  box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.05);
 }
 
 /* Button styling */
@@ -212,66 +221,87 @@ code {
   justify-content: center;
   gap: var(--spacing-sm);
   padding: var(--spacing-sm) var(--spacing-lg);
-  border-radius: var(--border-radius-md);
+  border-radius: var(--border-radius-lg);
   border: var(--border-width) solid transparent;
   font-size: var(--font-size-base);
-  font-weight: var(--font-weight-medium);
+  font-weight: var(--font-weight-semibold);
   cursor: pointer;
-  transition: all var(--transition-fast);
+  transition: all var(--transition-normal);
   text-decoration: none;
   background-color: var(--color-primary);
   color: white;
-  min-height: 36px;
+  min-height: 40px;
+  box-shadow: var(--shadow-sm);
+  min-width: 120px;
 }
 
 .btn:hover {
-  opacity: 0.9;
-  transform: translateY(-1px);
+  background-color: var(--color-primary-dark);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
 }
 
 .btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+  transform: none;
 }
 
 .btn-primary {
-  background-color: var(--color-primary);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
   color: white;
+  border: none;
 }
 
 .btn-secondary {
-  background-color: var(--color-surface-theme);
+  background: linear-gradient(135deg, var(--color-surface-theme) 0%, var(--color-background-theme) 100%);
   color: var(--color-text-primary-theme);
   border: var(--border-width) solid var(--color-border-theme);
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-secondary:hover {
+  background: linear-gradient(135deg, var(--color-surface-hover-theme) 0%, var(--color-surface-theme) 100%);
+  border-color: var(--color-primary-light);
 }
 
 .btn-tertiary {
   background-color: transparent;
   color: var(--color-primary);
   text-decoration: underline;
+  box-shadow: none;
 }
 
 /* Save button states */
 .btn-save-unsaved {
-  background-color: var(--color-warning);
+  background: linear-gradient(135deg, var(--color-warning) 0%, var(--color-warning-dark) 100%);
   color: white;
   position: relative;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); }
+  70% { box-shadow: 0 0 0 10px rgba(245, 158, 11, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
 }
 
 .btn-save-unsaved::after {
   content: "*";
   position: absolute;
-  top: -5px;
-  right: -5px;
-  background-color: red;
+  top: -6px;
+  right: -6px;
+  background: linear-gradient(135deg, var(--color-error) 0%, var(--color-error-dark) 100%);
   color: white;
   border-radius: 50%;
-  width: 16px;
-  height: 16px;
-  font-size: 10px;
+  width: 20px;
+  height: 20px;
+  font-size: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
+  font-weight: var(--font-weight-bold);
+  box-shadow: var(--shadow-md);
 }
 
 /* Input styling */
