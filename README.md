@@ -4,14 +4,16 @@ An application for creating, managing, and sharing animated diagrams generated f
 
 ## Description
 
-Animated Diagrams is a web-based tool that allows users to create, edit, and visualize diagrams using Mermaid.js syntax. The application provides a user-friendly interface for designing flowcharts, sequence diagrams, class diagrams, and other diagram types supported by Mermaid.js.
+Animated Diagrams is a web-based tool that allows users to create, edit, and visualize diagrams using Mermaid.js syntax. The application provides a user-friendly interface for designing flowcharts, sequence diagrams, class diagrams, and other diagram types supported by Mermaid.js. It features both a text-based Mermaid editor and an interactive visual flow editor for creating diagrams.
 
 ## Features
 
-- **Diagram Creation**: Create diagrams using Mermaid.js syntax with real-time preview
+- **Dual Editor Modes**: Create diagrams with either Mermaid code editor or visual flow editor
+- **Interactive Flow Editor**: Drag and drop interface for creating diagrams visually
 - **Project Management**: Save and manage multiple diagram projects
 - **Visualization**: View diagrams with smooth animations
 - **History**: Access previously created diagrams
+- **Real-time Preview**: See changes instantly as you edit
 - **Responsive Design**: Works on desktop and mobile devices
 
 ## Getting Started
@@ -73,21 +75,26 @@ npm run serve
 1. **Create a New Diagram**:
 
    - Open the application
-   - Enter a name for your diagram
-   - Write or edit the Mermaid.js code in the editor
+   - Choose between Mermaid code editor or visual flow editor
+   - Write Mermaid code or drag/drop nodes in the visual editor
    - Use the preview pane to see your diagram in real-time
 
-2. **Save Your Diagram**:
+2. **Switch Between Editor Modes**:
+
+   - Toggle between Mermaid code editor and visual flow editor using the mode switcher
+   - Changes are synchronized between both editors
+
+3. **Save Your Diagram**:
 
    - Click the "Save Diagram" button to store your work
    - Saved diagrams can be accessed from the history page
 
-3. **View Saved Diagrams**:
+4. **View Saved Diagrams**:
 
    - Navigate to the "My Diagrams" page to see all saved projects
    - Click on any diagram to view or edit it
 
-4. **Animating Diagrams**:
+5. **Animating Diagrams**:
    - Use the animation controls to view diagrams with animated effects
 
 ## Project Structure
@@ -107,6 +114,7 @@ src/
 - **React** - Frontend library
 - **TypeScript** - Typed JavaScript
 - **Mermaid.js** - Diagram generation
+- **React Flow** - Interactive flow editor
 - **React Router** - Navigation
 - **Vite** - Build tool and development server
 - **CSS Modules** - Styling
