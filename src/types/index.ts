@@ -41,6 +41,7 @@ export interface AppState {
   theme: 'light' | 'dark';
   hasUnsavedChanges: boolean;
   recentProjects: DiagramProject[];
+  editorMode: 'mermaid' | 'flow';
 }
 
 export interface MermaidConfig {

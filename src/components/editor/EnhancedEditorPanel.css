@@ -2,72 +2,92 @@
   height: 100%;
   display: flex;
   flex-direction: column;
-  background-color: var(--panel-bg, #fff);
-  border-radius: 4px;
+  background-color: var(--color-surface-theme);
+  border-radius: var(--border-radius-md);
   overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--color-border-theme);
 }
 
 .editor-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 8px 12px;
-  background-color: var(--header-bg, #f8f9fa);
-  border-bottom: 1px solid var(--border-color, #ddd);
-  font-size: 14px;
+  padding: var(--spacing-md) var(--spacing-lg);
+  background: linear-gradient(135deg, var(--color-surface-theme) 0%, var(--color-background-theme) 100%);
+  border-bottom: 1px solid var(--color-border-theme);
+  font-size: var(--font-size-base);
 }
 
 .editor-header h2 {
   margin: 0;
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--text-color, #333);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary-theme);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.editor-header h2::before {
+  content: " ";
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--color-primary);
 }
 
 .editor-status {
-  font-size: 12px;
-  padding: 2px 8px;
-  border-radius: 12px;
+  font-size: var(--font-size-sm);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--border-radius-full);
+  background-color: var(--color-surface-hover-theme);
+  color: var(--color-text-secondary-theme);
+  font-weight: var(--font-weight-medium);
+  min-width: 80px;
+  text-align: center;
 }
 
 .status-rendering {
-  background-color: var(--warning-bg, #fff3cd);
-  color: var(--warning-text, #856404);
+  background-color: var(--color-warning);
+  color: white;
 }
 
 .status-ready {
-  background-color: var(--success-bg, #d4edda);
-  color: var(--success-text, #155724);
+  background-color: var(--color-success);
+  color: white;
 }
 
 .status-unsaved {
-  background-color: var(--warning-bg, #fff3cd);
-  color: var(--warning-text, #856404);
-  font-weight: 500;
+  background-color: var(--color-warning);
+  color: white;
+  font-weight: var(--font-weight-semibold);
 }
 
 .status-saved {
-  background-color: var(--success-bg, #d4edda);
-  color: var(--success-text, #155724);
-  font-weight: 500;
+  background-color: var(--color-success);
+  color: white;
+  font-weight: var(--font-weight-semibold);
 }
 
 .editor-content {
   flex: 1;
   min-height: 0;
+  border-radius: 0 0 var(--border-radius-md) var(--border-radius-md);
 }
 
 /* Monaco Editor specific styles */
 .editor-content .monaco-editor,
 .editor-content .monaco-editor .overflow-guard {
-  border-radius: 0 0 4px 4px;
+  border-radius: 0 0 var(--border-radius-md) var(--border-radius-md);
 }
 
 /* Override default Monaco styles to match our theme */
 .monaco-editor .margin {
-  background-color: var(--editor-margin-bg, #fafafa);
+  background-color: color-mix(in srgb, var(--color-border-theme) 20%, transparent);
 }
 
 .monaco-editor .monaco-editor-background {
-  background-color: var(--editor-bg, #ffffff);
+  background-color: var(--color-surface-theme);
 }

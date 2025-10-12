@@ -9,8 +9,10 @@ interface TopNavigationProps {
   onShareDiagram: () => void;
   onToggleHistory: () => void;
   onToggleSidebar?: () => void;
-  isLoading?: boolean; // Add loading state prop
+  onToggleEditorMode?: () => void;
+  isLoading?: boolean;
   hasUnsavedChanges?: boolean;
+  editorMode?: 'mermaid' | 'flow';
 }
 
 const TopNavigation: React.FC<TopNavigationProps> = ({
@@ -19,8 +21,10 @@ const TopNavigation: React.FC<TopNavigationProps> = ({
   onShareDiagram,
   onToggleHistory,
   onToggleSidebar,
+  onToggleEditorMode,
   hasUnsavedChanges,
-  isLoading = false
+  isLoading = false,
+  editorMode = 'mermaid'
 }) => {
   return (
     <header className="header">
@@ -41,7 +45,7 @@ const TopNavigation: React.FC<TopNavigationProps> = ({
         </Button>
         
         <Button 
-          variant="secondary" 
+          variant="primary" 
           onClick={onSaveDiagram} 
           className={`btn ${hasUnsavedChanges ? 'btn-save-unsaved' : ''}`}
           title={hasUnsavedChanges ? "Save Diagram" : "No changes to save"}
@@ -96,6 +100,19 @@ const TopNavigation: React.FC<TopNavigationProps> = ({
           >
             <Icon name="menu" size={18} />
             Menu
+          </Button>
+        )}
+        
+        {onToggleEditorMode && (
+          <Button 
+            variant={editorMode === 'mermaid' ? "primary" : "secondary"} 
+            onClick={onToggleEditorMode} 
+            className="btn" 
+            title={editorMode === 'mermaid' ? "Switch to Visual Editor" : "Switch to Mermaid Editor"}
+            disabled={isLoading}
+          >
+            <Icon name={editorMode === 'mermaid' ? "edit" : "image"} size={18} />
+            {editorMode === 'mermaid' ? "Visual Editor" : "Mermaid Editor"}
           </Button>
         )}
       </div>
