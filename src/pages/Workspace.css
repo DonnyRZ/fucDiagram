@@ -23,7 +23,6 @@
   background: linear-gradient(135deg, var(--color-background-theme) 0%, var(--color-surface-theme) 100%);
   box-shadow: inset 0 0 0 1px var(--color-border-theme);
   border-radius: var(--border-radius-lg);
-  margin: var(--spacing-lg);
   overflow: hidden;
   position: relative;
 }

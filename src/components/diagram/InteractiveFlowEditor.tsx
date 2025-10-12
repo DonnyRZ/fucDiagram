@@ -193,6 +193,8 @@ const FlowEditor: React.FC<InteractiveFlowEditorProps> = ({ initialCode, onEleme
         selectNodesOnDrag={false}
         style={{
           borderRadius: 'var(--border-radius-lg)',
+          width: '100%',
+          height: '100%',
         }}
       >
         <Background variant="dots" gap={12} size={1} />
