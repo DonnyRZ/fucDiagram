@@ -18,8 +18,8 @@ interface WorkspaceEditorViewProps {
   activeTab: 'code' | 'config';
   setActiveTab: React.Dispatch<React.SetStateAction<'code' | 'config'>>;
   editorMode: 'mermaid' | 'flow';
-  setEditorMode: React.Dispatch<React.SetStateAction<'mermaid' | 'flow'>>;
-  setCurrentView: (view: string) => void;
+  setEditorMode: (mode: 'mermaid' | 'flow') => void;
+  setCurrentView: (view: 'editor' | 'history' | 'templates' | 'settings') => void;
 }
 
 const WorkspaceEditorView: React.FC<WorkspaceEditorViewProps> = ({
@@ -28,7 +28,8 @@ const WorkspaceEditorView: React.FC<WorkspaceEditorViewProps> = ({
   activeTab,
   setActiveTab,
   editorMode,
-  setEditorMode
+  setEditorMode,
+  setCurrentView
 }) => {
   const navigate = useNavigate();
   const { 
@@ -42,8 +43,7 @@ const WorkspaceEditorView: React.FC<WorkspaceEditorViewProps> = ({
     toggleAnimation,
     hasUnsavedChanges,
     setHasUnsavedChanges,
-    recentProjects,
-    addToRecent
+    recentProjects
   } = useApp();
   const { addToOpen, removeFromOpen } = useNavigation();
   const { isRendering } = useMermaidRenderer();

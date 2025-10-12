@@ -29,7 +29,6 @@ const Workspace: React.FC = () => {
     hasUnsavedChanges,
     setHasUnsavedChanges,
     recentProjects,
-    addToRecent,
     editorMode,
     setEditorMode
   } = useApp();
@@ -85,13 +84,13 @@ const Workspace: React.FC = () => {
       };
       updateProject(updatedProject);
       setHasUnsavedChanges(false);
-      addToRecent(updatedProject);
+      addRecent(updatedProject);
       showToast('Diagram saved successfully', 'success');
     } else {
       // This shouldn't happen in workspace mode, but just in case
       showToast('No diagram to save', 'error');
     }
-  }, [currentProject, code, updateProject, setHasUnsavedChanges, addToRecent, showToast]);
+  }, [currentProject, code, updateProject, setHasUnsavedChanges, addRecent, showToast]);
 
   const handleOpenProject = React.useCallback((id: string) => {
     navigate(`/canvas/${id}`);
@@ -110,7 +109,7 @@ const Workspace: React.FC = () => {
   useUnsavedChangesWarning(hasUnsavedChanges);
 
   // Update document title to reflect save status
-  useDocumentTitle(currentProject?.name, hasUnsavedChanges);
+  useDocumentTitle(currentProject?.name || undefined, hasUnsavedChanges);
 
   const renderCurrentView = () => {
     if (currentView === 'history') {
@@ -158,7 +157,11 @@ const Workspace: React.FC = () => {
       onNewDiagram={handleNewDiagram}
       onSaveDiagram={handleSaveDiagram}
       onToggleEditorMode={() => setEditorMode(editorMode === 'mermaid' ? 'flow' : 'mermaid')}
-      onToggleHistory={() => setShowHistory(!showHistory)}
+      onToggleHistory={() => {
+        // Always ensure the sidebar opens and set the active tab to history
+        setSidebarOpen(true);
+        setSidebarActiveTab('history');
+      }}
       sidebarOpen={sidebarOpen}
       sidebarActiveTab={sidebarActiveTab}
       setSidebarActiveTab={setSidebarActiveTab}
@@ -167,7 +170,7 @@ const Workspace: React.FC = () => {
       hasUnsavedChanges={hasUnsavedChanges}
       showHistory={showHistory}
       setShowHistory={setShowHistory}
-      error={error}
+      error={error || undefined}
     >
       {renderCurrentView()}
     </WorkspaceLayout>

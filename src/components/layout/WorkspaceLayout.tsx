@@ -55,7 +55,7 @@ const WorkspaceLayout: React.FC<WorkspaceLayoutProps> = ({
   const { showToast } = useToast();
   const location = useLocation();
   
-  const [sidebarOpenState, setSidebarOpenState] = useState(sidebarOpen);
+
 
   // Handle URL changes and load corresponding project
   useEffect(() => {
@@ -70,13 +70,12 @@ const WorkspaceLayout: React.FC<WorkspaceLayoutProps> = ({
     } else if (location.pathname === '/templates' || location.pathname === '/new') {
       setCurrentView('templates');
     } else if (location.pathname === '/') {
-      setCurrentView('start');
+      setCurrentView('editor');
     }
   }, [location.pathname, loadProject, setCurrentView]);
 
   const handleToggleSidebar = () => {
-    setSidebarOpenState(!sidebarOpenState);
-    onToggleSidebar();
+    onToggleSidebar(); // Only update the parent state
   };
 
   const handleTabClose = (id: string) => {
@@ -113,15 +112,15 @@ const WorkspaceLayout: React.FC<WorkspaceLayoutProps> = ({
         isLoading={isLoading}
         hasUnsavedChanges={hasUnsavedChanges}
       />
-      {sidebarOpenState && (
+      {sidebarOpen && (
         <div 
           className="sidebar-overlay open" 
-          onClick={() => setSidebarOpenState(false)}
+          onClick={onToggleSidebar}
         />
       )}
       <Sidebar 
-        isOpen={sidebarOpenState}
-        onClose={() => setSidebarOpenState(false)}
+        isOpen={sidebarOpen}
+        onClose={onToggleSidebar}
         activeTab={sidebarActiveTab}
         onTabChange={setSidebarActiveTab}
       />

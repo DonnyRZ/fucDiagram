@@ -6,7 +6,7 @@ import '../../pages/Workspace.css';
 interface WorkspaceFlowViewProps {
   code: string;
   editorMode: 'mermaid' | 'flow';
-  setEditorMode: React.Dispatch<React.SetStateAction<'mermaid' | 'flow'>>;
+  setEditorMode: (mode: 'mermaid' | 'flow') => void;
 }
 
 const WorkspaceFlowView: React.FC<WorkspaceFlowViewProps> = ({
@@ -15,6 +15,7 @@ const WorkspaceFlowView: React.FC<WorkspaceFlowViewProps> = ({
   setEditorMode
 }) => {
   const { currentProject } = useApp();
+
   return (
     <div className="workspace-editor-container">
       {/* Show Interactive Flow Editor - full height container */}
