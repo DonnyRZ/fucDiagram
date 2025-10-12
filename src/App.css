@@ -274,7 +274,7 @@ code {
 
 /* Save button states */
 .btn-save-unsaved {
-  background: linear-gradient(135deg, var(--color-warning) 0%, var(--color-warning-dark) 100%);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
   color: white;
   position: relative;
   animation: pulse 2s infinite;

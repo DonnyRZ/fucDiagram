@@ -45,7 +45,7 @@ const TopNavigation: React.FC<TopNavigationProps> = ({
         </Button>
         
         <Button 
-          variant="secondary" 
+          variant="primary" 
           onClick={onSaveDiagram} 
           className={`btn ${hasUnsavedChanges ? 'btn-save-unsaved' : ''}`}
           title={hasUnsavedChanges ? "Save Diagram" : "No changes to save"}

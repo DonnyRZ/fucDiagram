@@ -87,10 +87,20 @@ const Workspace: React.FC = () => {
       addRecent(updatedProject);
       showToast('Diagram saved successfully', 'success');
     } else {
-      // This shouldn't happen in workspace mode, but just in case
-      showToast('No diagram to save', 'error');
+      // If no current project, create a new one with the current code
+      try {
+        const newProject = createProject('Untitled Diagram', code);
+        addToOpen(newProject);
+        addRecent(newProject);
+        setActiveDiagram(newProject.id);
+        navigate(`/canvas/${newProject.id}`);
+        setHasUnsavedChanges(false);
+        showToast('Diagram saved successfully', 'success');
+      } catch (err) {
+        showToast('Failed to save diagram', 'error');
+      }
     }
-  }, [currentProject, code, updateProject, setHasUnsavedChanges, addRecent, showToast]);
+  }, [currentProject, code, updateProject, setHasUnsavedChanges, addRecent, showToast, createProject, addToOpen, setActiveDiagram, navigate]);
 
   const handleOpenProject = React.useCallback((id: string) => {
     navigate(`/canvas/${id}`);

@@ -99,3 +99,7 @@ Thumbs.db
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+# Project specific files to ignore
+QWEN.md
+Screenshots/
