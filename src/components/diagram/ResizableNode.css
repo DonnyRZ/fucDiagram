@@ -1,0 +1,124 @@
+.resizable-node {
+  position: relative;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-md);
+  box-shadow: var(--shadow);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+  user-select: none;
+  transition: all var(--transition-fast);
+}
+
+.resizable-node.selected {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px var(--color-primary-light), var(--shadow-lg);
+}
+
+.resizable-node.resizing,
+.resizable-node.rotating {
+  transition: none;
+}
+
+.node-content {
+  padding: var(--spacing-md);
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: break-word;
+}
+
+/* Resize handles */
+.resize-handle {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background-color: var(--color-primary);
+  border: 1px solid white;
+  border-radius: 50%;
+  z-index: 10;
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+
+.resizable-node.selected .resize-handle {
+  opacity: 1;
+}
+
+.resizable-node:hover .resize-handle {
+  opacity: 0.7;
+}
+
+.resize-handle:hover {
+  opacity: 1;
+  transform: scale(1.2);
+}
+
+/* Position-specific handles */
+.resize-n { top: -4px; left: 50%; transform: translateX(-50%); cursor: ns-resize; }
+.resize-e { top: 50%; right: -4px; transform: translateY(-50%); cursor: ew-resize; }
+.resize-s { bottom: -4px; left: 50%; transform: translateX(-50%); cursor: ns-resize; }
+.resize-w { top: 50%; left: -4px; transform: translateY(-50%); cursor: ew-resize; }
+.resize-ne { top: -4px; right: -4px; cursor: nesw-resize; }
+.resize-se { bottom: -4px; right: -4px; cursor: nwse-resize; }
+.resize-sw { bottom: -4px; left: -4px; cursor: nesw-resize; }
+.resize-nw { top: -4px; left: -4px; cursor: nwse-resize; }
+
+/* Rotation handle */
+.rotate-handle {
+  position: absolute;
+  top: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 20px;
+  height: 20px;
+  background-color: var(--color-primary);
+  border: 1px solid white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 12px;
+  cursor: grab;
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+  z-index: 10;
+}
+
+.resizable-node.selected .rotate-handle {
+  opacity: 1;
+}
+
+.resizable-node:hover .rotate-handle {
+  opacity: 0.7;
+}
+
+.rotate-handle:hover {
+  opacity: 1;
+  transform: translateX(-50%) scale(1.2);
+  cursor: grabbing;
+}
+
+.rotate-handle:active {
+  cursor: grabbing;
+}
+
+/* Handle positioning for different node sizes */
+.resizable-node[data-width="small"] .resize-handle {
+  width: 6px;
+  height: 6px;
+}
+
+.resizable-node[data-height="small"] .resize-handle {
+  width: 6px;
+  height: 6px;
+}
