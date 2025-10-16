@@ -1,5 +1,5 @@
 import type { Node, Edge } from '@xyflow/react';
-import { DiagramProject } from '../types';
+import { Position } from '@xyflow/react';
 
 interface MermaidNode {
   id: string;
@@ -16,15 +16,19 @@ interface MermaidEdge {
   label?: string;
 }
 
+interface ExtendedNodeData {
+  label: string;
+  nodeType?: string;
+}
+
 export class MermaidConverter {
   static mermaidToReactFlow(mermaidCode: string): { nodes: Node[]; edges: Edge[] } {
     // Parse Mermaid code to extract nodes and edges using a hierarchical layout
     const lines = mermaidCode.split('\n');
-    const allNodes: { id: string; label: string }[] = [];
     const edges: { source: string; target: string }[] = [];
-    const nodeMap = new Map<string, string>();
+    const nodeMap = new Map<string, ExtendedNodeData>();
     
-    // First pass: collect all unique node IDs and their labels
+    // First pass: collect all unique node IDs and their labels with potential BPMN types
     for (const line of lines) {
       const trimmedLine = line.trim();
       
@@ -33,20 +37,40 @@ export class MermaidConverter {
         continue;
       }
       
-      // Extract node patterns: ID[Label], ID{Label}, ID(Label)
+      // Extract node patterns with special handling for different shapes that might indicate BPMN types
+      // Start event: (id) - circle
+      // End event: (id) - circle  
+      // Task: [id] - rectangle
+      // Gateway: {id} - diamond
       const nodeRegex = /([A-Z0-9_]+)(?:\[(.*?)\]|{(.*?)}|\((.*?)\))/gi;
       let nodeMatch;
       while ((nodeMatch = nodeRegex.exec(trimmedLine)) !== null) {
         const nodeId = nodeMatch[1];
-        const nodeLabel = nodeMatch[2] || nodeMatch[3] || nodeMatch[4] || nodeId;
+        const rectLabel = nodeMatch[2];  // [label] - rectangle, likely a task
+        const diamondLabel = nodeMatch[3];  // {label} - diamond, likely a gateway
+        const circleLabel = nodeMatch[4];  // (label) - circle, likely an event
+        
+        let nodeLabel = rectLabel || diamondLabel || circleLabel || nodeId;
+        let nodeType: string | undefined;
+        
+        // Determine node type based on shape
+        if (circleLabel !== undefined) {
+          nodeType = 'event'; // Use event for circles since it can represent start/end
+        } else if (diamondLabel !== undefined) {
+          nodeType = 'gateway';
+        } else if (rectLabel !== undefined) {
+          nodeType = 'task';
+        } else {
+          nodeType = 'default';
+        }
         
         if (!nodeMap.has(nodeId)) {
-          nodeMap.set(nodeId, nodeLabel);
+          nodeMap.set(nodeId, { label: nodeLabel, nodeType });
         }
       }
       
       // Extract edge patterns: source --> target (may include node definitions in the same line)
-      const edgeRegex = /([A-Z0-9_]+)(?:\[(.*?)\]|{(.*?)}|\((.*?)\))?\s*(?:--|==>|\.\.>|-\\|>|\|\.|~|==|<-->|<->)\s*([A-Z0-9_]+)(?:\[(.*?)\]|{(.*?)}|\((.*?)\))?/gi;
+      const edgeRegex = /([A-Z0-9_]+)(?:\[(.*?)\]|{(.*?)}|\((.*?)\))?\s*(?:--|==>|\.\.>|-\\|>|\.|~|==|<-->|<->)\s*([A-Z0-9_]+)(?:\[(.*?)\]|{(.*?)}|\((.*?)\))?/gi;
       let edgeMatch;
       while ((edgeMatch = edgeRegex.exec(trimmedLine)) !== null) {
         const sourceId = edgeMatch[1];
@@ -54,12 +78,12 @@ export class MermaidConverter {
         
         // Add source node if not already in map
         if (!nodeMap.has(sourceId)) {
-          nodeMap.set(sourceId, sourceId);
+          nodeMap.set(sourceId, { label: sourceId, nodeType: 'default' });
         }
         
         // Add target node if not already in map
         if (!nodeMap.has(targetId)) {
-          nodeMap.set(targetId, targetId);
+          nodeMap.set(targetId, { label: targetId, nodeType: 'default' });
         }
         
         // Add edge if not already present
@@ -77,15 +101,20 @@ export class MermaidConverter {
     
     // Create nodes with calculated positions
     const resultNodes: Node[] = [];
-    for (const [id, label] of nodeMap) {
+    for (const [id, nodeData] of nodeMap) {
       const pos = positions.get(id) || { x: 100, y: 100 }; // fallback position
       resultNodes.push({
         id,
-        type: 'default',
+        type: nodeData.nodeType || 'default',
         position: pos,
-        data: { label },
-        sourcePosition: 'right',
-        targetPosition: 'left',
+        data: { label: nodeData.label },
+        sourcePosition: Position.Right,
+        targetPosition: Position.Left,
+        width: 100,  // Add required width property
+        height: 50,  // Add required height property
+        measured: undefined,  // Required by newer versions
+        selected: false,
+        dragging: false,
       });
     }
     
@@ -99,12 +128,12 @@ export class MermaidConverter {
       data: { label: '' }
     }));
     
-    // If no nodes were found, create a default node
+    // If no nodes were found, create a default start node
     if (resultNodes.length === 0) {
       return {
         nodes: [{
           id: 'start',
-          type: 'default',
+          type: 'start',
           position: { x: 100, y: 100 },
           data: { label: 'Start' }
         }],
@@ -222,10 +251,23 @@ export class MermaidConverter {
   }
 
   static reactFlowToMermaid(nodes: Node[], edges: Edge[]): string {
-    // Extract nodes and edges for flowchart
-    const nodeStatements = nodes.map(node => 
-      `${node.id}(${node.data?.label || node.id})`
-    ).join('\n    ');
+    // Convert enhanced node types back to Mermaid syntax
+    // Tasks use rectangle syntax [label], gateways use diamond {label}, events use circle (label)
+    const nodeStatements = nodes.map(node => {
+      const label = node.data?.label || node.id;
+      switch (node.type) {
+        case 'gateway':
+          return `${node.id}{${label}}`;
+        case 'event':
+        case 'start':
+        case 'end':
+          return `${node.id}(${label})`;
+        case 'task':
+          return `${node.id}[${label}]`;
+        default:
+          return `${node.id}[${label}]`; // Default to rectangle
+      }
+    }).join('\n    ');
     
     const edgeStatements = edges.map(edge => 
       `${edge.source} --> ${edge.target}`
