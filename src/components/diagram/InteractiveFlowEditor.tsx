@@ -476,14 +476,13 @@ const FlowEditor: React.FC<InteractiveFlowEditorProps> = ({ initialCode, onEleme
         onDragOver={handleDragOver}
         nodeTypes={enhancedNodeTypes}
         fitView
-        fitZoom={(zoom: number) => zoom}
         minZoom={0.1}
         maxZoom={1.5}
         panOnScroll
         zoomOnScroll
         panOnDrag
         selectionOnDrag
-        edgeUpdaterRadius={20}
+        connectionRadius={20}
         defaultEdgeOptions={{ 
           type: 'smoothstep', 
           markerEnd: { type: MarkerType.ArrowClosed, width: 10, height: 10 },
