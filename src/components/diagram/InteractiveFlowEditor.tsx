@@ -212,7 +212,7 @@ interface InteractiveFlowEditorProps {
 
 const FlowEditor: React.FC<InteractiveFlowEditorProps> = ({ initialCode, onElementsChange }) => {
   const { currentProject, setCurrentProjectCode } = useApp();
-  const { fitView, zoomTo } = useReactFlow();
+  const { fitView, zoomTo, screenToFlowPosition } = useReactFlow();
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
   const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance | null>(null);
@@ -401,7 +401,8 @@ const FlowEditor: React.FC<InteractiveFlowEditorProps> = ({ initialCode, onEleme
       if (!reactFlowInstance) return;
       
       // Get the position where the shape was dropped
-      const position = reactFlowInstance.project({
+      // Project screen coordinates to flow coordinates using the useReactFlow hook's methods
+      const position = screenToFlowPosition({
         x: event.clientX,
         y: event.clientY,
       });
@@ -436,7 +437,7 @@ const FlowEditor: React.FC<InteractiveFlowEditorProps> = ({ initialCode, onEleme
         console.error('Error parsing dropped shape data:', error);
       }
     },
-    [reactFlowInstance, setNodes, nodes, edges, onElementsChange]
+    [reactFlowInstance, screenToFlowPosition, setNodes, nodes, edges, onElementsChange]
   );
 
   // Update node selection handler to work with React Flow
