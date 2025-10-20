@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useRef, useEffect } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import {
   ReactFlow,
   Node,
@@ -16,180 +16,255 @@ import {
   MiniMap,
   useReactFlow,
   MarkerType,
-  Position
+  Position,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import dagre from 'dagre';
 
 import { useApp } from '../../hooks/useApp';
-import { MermaidConverter } from '../../services/mermaidConverter';
+import { DiagramModel, DiagramNode, DiagramEdge } from '../../types/diagramModel';
+import { UnifiedMermaidConverter } from '../../services/UnifiedMermaidConverter';
 import PropertiesPanel from '../ui/PropertiesPanel';
 import ShapeLibrarySidebar from '../ui/ShapeLibrarySidebar';
-import ResizableNode from './ResizableNode';
 import AlignmentGuides from './AlignmentGuides';
 import MultiSelectionBox from './MultiSelectionBox';
 import { ProcessValidation } from '../../services/processValidation';
-import { useAlignmentGuides } from '../../hooks/useAlignmentGuides';
-import { useMultiSelection } from '../../hooks/useMultiSelection';
-import { useLayerManagement } from '../../hooks/useLayerManagement';
-import { useSmartConnectors } from '../../hooks/useSmartConnectors';
-import { useCustomShapes } from '../../hooks/useCustomShapes';
 
 const dagreGraph = new dagre.graphlib.Graph();
 dagreGraph.setDefaultEdgeLabel(() => ({}));
 
-// Enhanced node types with BPMN-inspired elements
-const StartNode = ({ data }: NodeProps<{ label: string }>) => {
-  const label = data?.label || 'Start';
+type VisualNodeData = {
+  label?: string;
+  style?: React.CSSProperties;
+  classes?: string[];
+};
+
+const buildClassName = (base: string, data?: VisualNodeData) => {
+  const extra = Array.isArray(data?.classes) ? data.classes!.join(' ') : '';
+  return `${base} ${extra}`.trim();
+};
+
+const mergeNodeStyles = (base: React.CSSProperties, data?: VisualNodeData): React.CSSProperties => {
+  const overrides = (data?.style as React.CSSProperties) || {};
+  const background = (overrides.background ?? overrides.backgroundColor) as string | undefined;
+  const merged: React.CSSProperties = {
+    ...base,
+  };
+  if (background) {
+    merged.background = background;
+    merged.backgroundColor = background;
+  }
+  if (overrides.border) {
+    merged.border = overrides.border as string;
+  }
+  if (overrides.color) {
+    merged.color = overrides.color as string;
+  }
+  return {
+    ...merged,
+    ...overrides,
+  };
+};
+
+const StartNode = ({ data }: NodeProps) => {
+  const nodeData = (data as VisualNodeData) || {};
+  const label = nodeData.label || 'Start';
+  const nodeStyle = mergeNodeStyles(
+    {
+      padding: 'var(--spacing-md)',
+      backgroundColor: 'var(--color-background)',
+      border: '2px solid var(--color-success)',
+      borderRadius: '50%',
+      width: '60px',
+      height: '60px',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      boxShadow: 'var(--shadow)',
+      textAlign: 'center',
+      fontSize: 'var(--font-size-sm)',
+      color: 'var(--color-text-primary)',
+      minWidth: '60px',
+      minHeight: '60px',
+    },
+    nodeData,
+  );
   return (
-    <div 
-      className="bpmn-node start-node"
-      style={{
-        padding: 'var(--spacing-md)',
-        backgroundColor: 'var(--color-background)',
-        border: '2px solid var(--color-success)',
-        borderRadius: '50%',
-        width: '60px',
-        height: '60px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        boxShadow: 'var(--shadow)',
-        textAlign: 'center',
-        fontSize: 'var(--font-size-sm)',
-        color: 'var(--color-text-primary)',
-        minWidth: '60px',
-        minHeight: '60px',
-      }}
-    >
-      <div style={{ fontSize: '24px' }}>●</div>
+    <div className={buildClassName('bpmn-node start-node', nodeData)} style={nodeStyle}>
+      <div>{label}</div>
     </div>
   );
 };
 
-const EndNode = ({ data }: NodeProps<{ label: string }>) => {
-  const label = data?.label || 'End';
+const EndNode = ({ data }: NodeProps) => {
+  const nodeData = (data as VisualNodeData) || {};
+  const label = nodeData.label || 'End';
+  const nodeStyle = mergeNodeStyles(
+    {
+      padding: 'var(--spacing-md)',
+      backgroundColor: 'var(--color-background)',
+      border: '2px solid var(--color-error)',
+      borderRadius: '50%',
+      width: '60px',
+      height: '60px',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      boxShadow: 'var(--shadow)',
+      textAlign: 'center',
+      fontSize: 'var(--font-size-sm)',
+      color: 'var(--color-text-primary)',
+      minWidth: '60px',
+      minHeight: '60px',
+    },
+    nodeData,
+  );
   return (
-    <div 
-      className="bpmn-node end-node"
-      style={{
-        padding: 'var(--spacing-md)',
-        backgroundColor: 'var(--color-background)',
-        border: '2px solid var(--color-error)',
-        borderRadius: '50%',
-        width: '60px',
-        height: '60px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        boxShadow: 'var(--shadow)',
-        textAlign: 'center',
-        fontSize: 'var(--font-size-sm)',
-        color: 'var(--color-text-primary)',
-        minWidth: '60px',
-        minHeight: '60px',
-      }}
-    >
-      <div style={{ fontSize: '24px' }}>●</div>
+    <div className={buildClassName('bpmn-node end-node', nodeData)} style={nodeStyle}>
+      <div>{label}</div>
     </div>
   );
 };
 
-const TaskNode = ({ data }: NodeProps<{ label: string }>) => {
-  const label = data?.label || 'Task';
+const TaskNode = ({ data }: NodeProps) => {
+  const nodeData = (data as VisualNodeData) || {};
+  const label = nodeData.label || 'Task';
+  const nodeStyle = mergeNodeStyles(
+    {
+      padding: 'var(--spacing-md)',
+      backgroundColor: 'var(--color-surface)',
+      border: '1px solid var(--color-border)',
+      borderRadius: 'var(--border-radius-md)',
+      boxShadow: 'var(--shadow)',
+      minWidth: '120px',
+      textAlign: 'center',
+      fontSize: 'var(--font-size-sm)',
+      color: 'var(--color-text-primary)',
+    },
+    nodeData,
+  );
   return (
-    <div 
-      className="bpmn-node task-node"
-      style={{
-        padding: 'var(--spacing-md)',
-        backgroundColor: 'var(--color-surface)',
-        border: '1px solid var(--color-border)',
-        borderRadius: 'var(--border-radius-md)',
-        boxShadow: 'var(--shadow)',
-        minWidth: '120px',
-        textAlign: 'center',
-        fontSize: 'var(--font-size-sm)',
-        color: 'var(--color-text-primary)',
-      }}
-    >
+    <div className={buildClassName('bpmn-node task-node', nodeData)} style={nodeStyle}>
       {label}
     </div>
   );
 };
 
-const GatewayNode = ({ data }: NodeProps<{ label: string }>) => {
-  const label = data?.label || 'Gateway';
+const GatewayNode = ({ data }: NodeProps) => {
+  const nodeData = (data as VisualNodeData) || {};
+  const label = nodeData.label || 'Gateway';
+  const nodeStyle = mergeNodeStyles(
+    {
+      padding: 'var(--spacing-md)',
+      backgroundColor: 'var(--color-surface)',
+      border: '2px solid var(--color-primary)',
+      borderRadius: 'var(--border-radius-md)',
+      boxShadow: 'var(--shadow)',
+      minWidth: '80px',
+      minHeight: '80px',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      textAlign: 'center',
+      fontSize: 'var(--font-size-sm)',
+      color: 'var(--color-text-primary)',
+      transform: 'rotate(45deg)',
+    },
+    nodeData,
+  );
   return (
-    <div 
-      className="bpmn-node gateway-node"
-      style={{
-        padding: 'var(--spacing-md)',
-        backgroundColor: 'var(--color-surface)',
-        border: '2px solid var(--color-primary)',
-        borderRadius: 'var(--border-radius-md)',
-        boxShadow: 'var(--shadow)',
-        minWidth: '80px',
-        minHeight: '80px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        textAlign: 'center',
-        fontSize: 'var(--font-size-sm)',
-        color: 'var(--color-text-primary)',
-        transform: 'rotate(45deg)',
-      }}
-    >
-      <div style={{ transform: 'rotate(-45deg)' }}>◇</div>
+    <div className={buildClassName('bpmn-node gateway-node', nodeData)} style={nodeStyle}>
+      <div style={{ transform: 'rotate(-45deg)' }}>{label}</div>
     </div>
   );
 };
 
-const EventNode = ({ data }: NodeProps<{ label: string }>) => {
-  const label = data?.label || 'Event';
+const EventNode = ({ data }: NodeProps) => {
+  const nodeData = (data as VisualNodeData) || {};
+  const label = nodeData.label || 'Event';
+  const nodeStyle = mergeNodeStyles(
+    {
+      padding: 'var(--spacing-md)',
+      backgroundColor: 'var(--color-background)',
+      border: '2px solid var(--color-warning)',
+      borderRadius: '50%',
+      width: '60px',
+      height: '60px',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      boxShadow: 'var(--shadow)',
+      textAlign: 'center',
+      fontSize: 'var(--font-size-sm)',
+      color: 'var(--color-text-primary)',
+      minWidth: '60px',
+      minHeight: '60px',
+    },
+    nodeData,
+  );
   return (
-    <div 
-      className="bpmn-node event-node"
-      style={{
-        padding: 'var(--spacing-md)',
-        backgroundColor: 'var(--color-background)',
-        border: '2px solid var(--color-warning)',
-        borderRadius: '50%',
-        width: '60px',
-        height: '60px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        boxShadow: 'var(--shadow)',
-        textAlign: 'center',
-        fontSize: 'var(--font-size-sm)',
-        color: 'var(--color-text-primary)',
-        minWidth: '60px',
-        minHeight: '60px',
-      }}
-    >
-      <div style={{ fontSize: '20px' }}>○</div>
+    <div className={buildClassName('bpmn-node event-node', nodeData)} style={nodeStyle}>
+      <div>{label}</div>
     </div>
   );
 };
 
-const DefaultNode = ({ data }: NodeProps<{ label: string }>) => {
-  const label = data?.label || 'Node';
+const DefaultNode = ({ data }: NodeProps) => {
+  const nodeData = (data as VisualNodeData) || {};
+  const label = nodeData.label || 'Node';
+  const nodeStyle = mergeNodeStyles(
+    {
+      padding: 'var(--spacing-md)',
+      backgroundColor: 'var(--color-surface)',
+      border: '1px solid var(--color-border)',
+      borderRadius: 'var(--border-radius-md)',
+      boxShadow: 'var(--shadow)',
+      minWidth: '120px',
+      textAlign: 'center',
+      fontSize: 'var(--font-size-sm)',
+      color: 'var(--color-text-primary)',
+    },
+    nodeData,
+  );
   return (
-    <div 
-      className="bpmn-node default-node"
-      style={{
-        padding: 'var(--spacing-md)',
-        backgroundColor: 'var(--color-surface)',
-        border: '1px solid var(--color-border)',
-        borderRadius: 'var(--border-radius-md)',
-        boxShadow: 'var(--shadow)',
-        minWidth: '120px',
-        textAlign: 'center',
-        fontSize: 'var(--font-size-sm)',
-        color: 'var(--color-text-primary)',
-      }}
-    >
+    <div className={buildClassName('bpmn-node default-node', nodeData)} style={nodeStyle}>
       {label}
+    </div>
+  );
+};
+
+const GroupNode = ({ data }: NodeProps) => {
+  const nodeData = (data as VisualNodeData) || {};
+  const label = nodeData.label || '';
+  const mergedStyle = mergeNodeStyles(
+    {
+      width: '100%',
+      height: '100%',
+      border: '1px dashed rgba(148, 163, 184, 0.8)',
+      background: 'rgba(148, 163, 184, 0.12)',
+      borderRadius: '16px',
+      pointerEvents: 'none',
+      position: 'relative',
+    },
+    nodeData,
+  );
+  return (
+    <div className={buildClassName('diagram-group-node', nodeData)} style={mergedStyle}>
+      {label && (
+        <div
+          style={{
+            position: 'absolute',
+            top: 8,
+            left: 12,
+            fontWeight: 600,
+            fontSize: 'var(--font-size-sm)',
+            color: 'var(--color-text-secondary-theme)',
+            pointerEvents: 'auto',
+          }}
+        >
+          {label}
+        </div>
+      )}
     </div>
   );
 };
@@ -202,44 +277,180 @@ const enhancedNodeTypes = {
   gateway: GatewayNode,
   event: EventNode,
   default: DefaultNode,
-  resizable: ResizableNode,
+  group: GroupNode,
 };
 
 interface InteractiveFlowEditorProps {
-  initialCode: string;
-  onElementsChange?: (nodes: Node[], edges: Edge[]) => void;
+  model: DiagramModel;
+  setModel: (model: DiagramModel) => void;
+  engineMethods: any;
 }
 
-const FlowEditor: React.FC<InteractiveFlowEditorProps> = ({ initialCode, onElementsChange }) => {
+// Convert DiagramModel nodes to React Flow format
+const convertModelNodesToReactFlow = (model: DiagramModel): Node[] => {
+  const groupNodes: Node[] = (model.groups || []).map(group => {
+    const classes = group.metadata?.classList ?? [];
+    const width = group.width ?? group.metadata?.layout?.width ?? 320;
+    const height = group.height ?? group.metadata?.layout?.height ?? 240;
+    const borderWidth = typeof group.style?.borderWidth === 'number'
+      ? `${group.style?.borderWidth}px`
+      : group.style?.borderWidth;
+    const borderColor = group.style?.borderColor;
+    return {
+      id: group.id,
+      type: 'group',
+      position: {
+        x: group.x ?? group.metadata?.layout?.x ?? 0,
+        y: group.y ?? group.metadata?.layout?.y ?? 0,
+      },
+      data: {
+        label: group.name,
+        style: {
+          pointerEvents: 'none',
+          background: group.style?.backgroundColor,
+          backgroundColor: group.style?.backgroundColor,
+          border: borderColor
+            ? `${borderWidth ?? 1}px solid ${borderColor}`
+            : undefined,
+          color: group.style?.color,
+        },
+        classes,
+      },
+      width,
+      height,
+      draggable: false,
+      selectable: false,
+      focusable: false,
+      zIndex: -100,
+      className: classes.join(' '),
+    } as Node;
+  });
+
+  const childNodes: Node[] = model.nodes.map(node => {
+    const classes = Array.isArray(node.metadata?.classList) ? node.metadata!.classList : [];
+    return {
+      id: node.id,
+      type: node.type || 'default',
+      position: { x: node.x, y: node.y },
+      data: {
+        ...node.properties,
+        label: node.label,
+        style: node.style,
+        classes,
+      },
+      width: node.width,
+      height: node.height,
+      measured: undefined,
+      selected: false,
+      dragging: false,
+      className: classes.join(' '),
+      zIndex: node.zIndex,
+    } as Node;
+  });
+
+  return [...groupNodes, ...childNodes];
+};
+
+// Convert DiagramModel edges to React Flow format
+const convertModelEdgesToReactFlow = (modelEdges: DiagramEdge[]): Edge[] => {
+  return modelEdges.map(edge => {
+    const edgeStyle = edge.style ? (edge.style as React.CSSProperties) : undefined;
+    const classes = edge.metadata?.classList ?? [];
+    return {
+    id: edge.id,
+    source: edge.source,
+    target: edge.target,
+    animated: edge.properties?.animated ?? false,
+    type: edge.type === 'default' ? 'smoothstep' : edge.type,
+    markerEnd: { type: MarkerType.ArrowClosed, width: 12, height: 12, color: edgeStyle?.stroke as string | undefined },
+    label: edge.label,
+    style: edgeStyle,
+    data: {
+      ...edge.properties,
+      label: edge.label,
+      classes,
+    },
+    className: classes.join(' '),
+  } as Edge;
+  });
+};
+
+const FlowEditor: React.FC<InteractiveFlowEditorProps> = ({ model, setModel, engineMethods }) => {
   const { currentProject, setCurrentProjectCode } = useApp();
   const { fitView, zoomTo, screenToFlowPosition } = useReactFlow();
-  const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
-  const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
+  
+  // Convert model nodes and edges to React Flow format
+  const initialReactFlowNodes = convertModelNodesToReactFlow(model);
+  const initialReactFlowEdges = convertModelEdgesToReactFlow(model.edges);
+  
+  const [nodes, setNodes, onNodesChange] = useNodesState<Node>(initialReactFlowNodes);
+  const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>(initialReactFlowEdges);
   const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance | null>(null);
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [validationWarnings, setValidationWarnings] = useState<string[]>([]);
 
-  // Parse initial code and initialize nodes/edges
-  React.useEffect(() => {
-    if (initialCode) {
-      const { nodes: parsedNodes, edges: parsedEdges } = MermaidConverter.mermaidToReactFlow(initialCode);
-      setNodes(parsedNodes);
-      setEdges(parsedEdges);
-      
-      // Apply DAGRE layout after a short delay to ensure proper rendering
-      setTimeout(() => {
-        onApplyLayout('TB'); // Apply vertical layout by default
-      }, 100);
-      
-      if (onElementsChange) {
-        onElementsChange(parsedNodes, parsedEdges);
+  // Sync React Flow nodes/edges when model changes externally
+  useEffect(() => {
+    // Convert updated model to React Flow format
+    const updatedReactFlowNodes = convertModelNodesToReactFlow(model);
+    const updatedReactFlowEdges = convertModelEdgesToReactFlow(model.edges);
+    
+    // Update React Flow state
+    setNodes(updatedReactFlowNodes);
+    setEdges(updatedReactFlowEdges);
+  }, [model, setNodes, setEdges]);
+
+  // Sync changes from React Flow back to unified model
+  useEffect(() => {
+    // Update nodes in the unified model when React Flow nodes change
+    const updatedModel = { ...model };
+    
+    // Update nodes in the model with data from React Flow WHILE preserving rich metadata
+    updatedModel.nodes = updatedModel.nodes.map(modelNode => {
+      const flowNode = nodes.find(fn => fn.id === modelNode.id);
+      if (flowNode) {
+        return {
+          ...modelNode,  // Preserve ALL original properties including rich metadata
+          x: flowNode.position.x,  // Update only position
+          y: flowNode.position.y,
+          width: flowNode.width || modelNode.width,  // Update only dimensions
+          height: flowNode.height || modelNode.height,
+          properties: { 
+            ...modelNode.properties,  // Preserve ALL original properties
+            ...flowNode.data  // Add/update with React Flow data
+          }
+          // NOTE: We're NOT overwriting the metadata which contains the rich information
+        };
       }
-      
-      // Validate the imported process
-      validateProcess(parsedNodes, parsedEdges);
-    }
-  }, [initialCode, setNodes, setEdges, onElementsChange]);
+      return modelNode;
+    });
+    
+    setModel(updatedModel);
+  }, [nodes, setModel, model]);
+
+  useEffect(() => {
+    // Update edges in the unified model when React Flow edges change
+    const updatedModel = { ...model };
+    
+    // Update edges in the model with data from React Flow WHILE preserving rich metadata
+    updatedModel.edges = updatedModel.edges.map(modelEdge => {
+      const flowEdge = edges.find(fe => fe.id === modelEdge.id);
+      if (flowEdge) {
+        return {
+          ...modelEdge,  // Preserve ALL original properties including rich metadata
+          properties: { 
+            ...modelEdge.properties,  // Preserve ALL original properties
+            ...flowEdge.data  // Add/update with React Flow data
+          }
+          // NOTE: We're NOT overwriting the metadata which contains the rich information
+        };
+      }
+      return modelEdge;
+    });
+    
+    setModel(updatedModel);
+  }, [edges, setModel, model]);
 
   // Validate the process on changes
   const validateProcess = useCallback((currentNodes: Node[], currentEdges: Edge[]) => {
@@ -252,43 +463,38 @@ const FlowEditor: React.FC<InteractiveFlowEditorProps> = ({ initialCode, onEleme
 
   const onConnect = useCallback(
     (params: Connection) => {
-      // Validate connection before adding
-      const sourceNode = nodes.find(n => n.id === params.source);
-      const targetNode = nodes.find(n => n.id === params.target);
-      
-      if (sourceNode && targetNode) {
-        const validation = ProcessValidation.validateConnection(
-          sourceNode.type || 'default', 
-          targetNode.type || 'default'
-        );
-        
-        if (!validation.isValid) {
-          alert(`Connection not allowed: ${validation.errors.join(', ')}`);
-          return;
-        }
-      }
-      
-      const newEdge = {
-        ...params,
-        id: `edge-${params.source}-${params.target}`,
-        markerEnd: { type: MarkerType.ArrowClosed, width: 10, height: 10 },
-        animated: true,
-        type: 'smoothstep',
-        data: { label: '' },
-        sourceHandle: null,
-        targetHandle: null
+      // Add edge to unified model via engine methods
+      const newEdge: DiagramEdge = {
+        id: `edge-${params.source}-${params.target}-${Date.now()}`,
+        source: params.source,
+        target: params.target,
+        label: '',
+        type: 'default',
+        properties: {},
+        metadata: {}
       };
-      setEdges((eds) => addEdge(newEdge, eds));
       
-      // Re-validate the process after connection
-      setTimeout(() => validateProcess(nodes, [...edges, newEdge]), 0);
+      engineMethods.addEdge(newEdge);
+      
+      // React Flow will handle the visual update
+      const newEdgeReactFlow: Edge = {
+        id: `edge-${params.source}-${params.target}-${Date.now()}`,
+        source: params.source,
+        target: params.target,
+        type: 'smoothstep',
+        animated: true,
+        markerEnd: { type: MarkerType.ArrowClosed, width: 10, height: 10 },
+        data: { label: '' }
+      };
+      
+      setEdges((eds) => addEdge(newEdgeReactFlow, eds));
     },
-    [setEdges, nodes, edges, validateProcess]
+    [setEdges, engineMethods]
   );
 
   const onSaveDiagram = () => {
     if (currentProject) {
-      const mermaidCode = MermaidConverter.reactFlowToMermaid(nodes, edges);
+      const mermaidCode = UnifiedMermaidConverter.modelToMermaid(model);
       setCurrentProjectCode(mermaidCode);
     }
   };
@@ -344,28 +550,22 @@ const FlowEditor: React.FC<InteractiveFlowEditorProps> = ({ initialCode, onEleme
   }, []);
 
   const onAddNode = useCallback((nodeType: 'start' | 'end' | 'task' | 'gateway' | 'event' | 'default' = 'default') => {
-    const newNode: Node = {
+    const newNode: DiagramNode = {
       id: `node_${Date.now()}`,
+      label: nodeType.charAt(0).toUpperCase() + nodeType.slice(1),
       type: nodeType,
-      position: { 
-        x: 200, 
-        y: 200 
-      },
-      data: { 
-        label: nodeType.charAt(0).toUpperCase() + nodeType.slice(1) 
-      },
-      sourcePosition: Position.Right,
-      targetPosition: Position.Left,
+      x: 200,
+      y: 200,
+      width: 100,
+      height: 50,
+      style: {},
+      properties: {},
+      metadata: {}
     };
     
-    setNodes((nds) => nds.concat(newNode));
-    if (onElementsChange) {
-      onElementsChange([...nodes, newNode], edges);
-    }
-    
-    // Validate the process after adding new node
-    setTimeout(() => validateProcess([...nodes, newNode], edges), 0);
-  }, [setNodes, nodes, edges, onElementsChange, validateProcess]);
+    // Add to unified model via engine
+    engineMethods.addNode(newNode);
+  }, [engineMethods]);
 
   // Handle node changes from properties panel
   const handleNodeChange = useCallback((node: Node) => {
@@ -378,13 +578,29 @@ const FlowEditor: React.FC<InteractiveFlowEditorProps> = ({ initialCode, onEleme
       setSelectedNode(node);
     }
     
-    if (onElementsChange) {
-      onElementsChange(nodes.map(n => (n.id === node.id ? node : n)), edges);
+    // Update model via engine WHILE preserving ALL rich metadata
+    if (selectedNode) {
+      // Find the original node in the model to preserve its metadata
+      const originalModelNode = model.nodes.find(n => n.id === selectedNode.id);
+      
+      // Create updated node with preserved metadata
+      const updatedNode: DiagramNode = {
+        ...originalModelNode!, // Preserve ALL original properties including rich metadata
+        x: node.position.x,    // Update only position
+        y: node.position.y,
+        label: node.data?.label || node.id,  // Update label
+        width: node.width || originalModelNode!.width,  // Update dimensions
+        height: node.height || originalModelNode!.height,
+        properties: { 
+          ...originalModelNode!.properties, // Preserve ALL original properties
+          ...node.data  // Add/update with React Flow data
+        }
+        // NOTE: We're NOT overwriting the metadata which contains the rich information
+      };
+      
+      engineMethods.updateNode(selectedNode.id, updatedNode);
     }
-    
-    // Re-validate after node change
-    setTimeout(() => validateProcess(nodes.map(n => (n.id === node.id ? node : n)), edges), 0);
-  }, [setNodes, nodes, edges, onElementsChange, selectedNode, validateProcess]);
+  }, [setNodes, selectedNode, engineMethods, model.nodes]);
 
   // Handle drag over event for dropping shapes onto canvas
   const handleDragOver = useCallback((event: React.DragEvent) => {
@@ -401,7 +617,6 @@ const FlowEditor: React.FC<InteractiveFlowEditorProps> = ({ initialCode, onEleme
       if (!reactFlowInstance) return;
       
       // Get the position where the shape was dropped
-      // Project screen coordinates to flow coordinates using the useReactFlow hook's methods
       const position = screenToFlowPosition({
         x: event.clientX,
         y: event.clientY,
@@ -415,29 +630,25 @@ const FlowEditor: React.FC<InteractiveFlowEditorProps> = ({ initialCode, onEleme
         const shape = JSON.parse(shapeData);
         
         // Create a new node based on the dropped shape
-        const newNode: Node = {
+        const newNode: DiagramNode = {
           id: `node_${Date.now()}`,
           type: shape.type,
-          position,
-          data: { 
-            label: shape.label || 'New Node' 
-          },
-          sourcePosition: Position.Right,
-          targetPosition: Position.Left,
+          label: shape.label || 'New Node',
+          x: position.x,
+          y: position.y,
           width: 100,
           height: 50,
+          style: {},
+          properties: {},
+          metadata: {}
         };
         
-        setNodes((nds) => nds.concat(newNode));
-        
-        if (onElementsChange) {
-          onElementsChange([...nodes, newNode], edges);
-        }
+        engineMethods.addNode(newNode);
       } catch (error) {
         console.error('Error parsing dropped shape data:', error);
       }
     },
-    [reactFlowInstance, screenToFlowPosition, setNodes, nodes, edges, onElementsChange]
+    [reactFlowInstance, screenToFlowPosition, engineMethods]
   );
 
   // Update node selection handler to work with React Flow

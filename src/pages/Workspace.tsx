@@ -4,6 +4,9 @@ import { useApp } from '../hooks/useApp';
 import { useNavigation } from '../context/NavigationContext';
 import { useMermaidRenderer } from '../hooks/useMermaidRenderer';
 import { useToast } from '../context/ToastContext';
+import { useDiagramEngine } from '../hooks/useDiagramEngine';
+import { UnifiedMermaidConverter } from '../services/UnifiedMermaidConverter';
+import { DiagramModel } from '../types/diagramModel';
 import WorkspaceLayout from '../components/layout/WorkspaceLayout';
 import WorkspaceEditorView from '../components/views/WorkspaceEditorView';
 import WorkspaceFlowView from '../components/views/WorkspaceFlowView';
@@ -42,23 +45,38 @@ const Workspace: React.FC = () => {
   } = useNavigation();
   const { showToast } = useToast();
   
+  // NEW: Use the unified diagram engine
   const [code, setCode] = useState(currentProject?.mermaidCode || '');
+  const { model, setModel, ...engineMethods } = useDiagramEngine();
   const [activeTab, setActiveTab] = useState<'code' | 'config'>('code');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarActiveTab, setSidebarActiveTab] = useState<'history' | 'templates' | 'settings'>('history');
 
-  // Update local code when current project changes
+  // Update model when current project changes
   useEffect(() => {
+    let isCancelled = false;
+
     if (currentProject) {
       setCode(currentProject.mermaidCode);
-      // Add to open diagrams
+      (async () => {
+        try {
+          const diagramModel = await UnifiedMermaidConverter.mermaidToModel(currentProject.mermaidCode);
+          if (!isCancelled) {
+            setModel(diagramModel);
+          }
+        } catch (error) {
+          console.error('Failed to convert Mermaid code to model:', error);
+        }
+      })();
+      
       addToOpen(currentProject);
-      // Add to recent projects
       addRecent(currentProject);
-      // Update navigation context
       setActiveDiagram(currentProject.id);
     }
-  }, [currentProject, addToOpen, addRecent, setActiveDiagram]);
+    return () => {
+      isCancelled = true;
+    };
+  }, [currentProject, addToOpen, addRecent, setActiveDiagram, setModel]);
 
   const handleNewDiagram = React.useCallback(() => {
     // Create a new untitled project
@@ -75,11 +93,14 @@ const Workspace: React.FC = () => {
   }, [createProject, addToOpen, addRecent, setActiveDiagram, navigate, showToast]);
 
   const handleSaveDiagram = React.useCallback(() => {
+    // Convert current model to Mermaid code
+    const updatedCode = UnifiedMermaidConverter.modelToMermaid(model);
+    
     if (currentProject) {
       // Update existing project
       const updatedProject = {
         ...currentProject,
-        mermaidCode: code,
+        mermaidCode: updatedCode,
         updatedAt: new Date()
       };
       updateProject(updatedProject);
@@ -89,7 +110,7 @@ const Workspace: React.FC = () => {
     } else {
       // If no current project, create a new one with the current code
       try {
-        const newProject = createProject('Untitled Diagram', code);
+        const newProject = createProject('Untitled Diagram', updatedCode);
         addToOpen(newProject);
         addRecent(newProject);
         setActiveDiagram(newProject.id);
@@ -100,7 +121,7 @@ const Workspace: React.FC = () => {
         showToast('Failed to save diagram', 'error');
       }
     }
-  }, [currentProject, code, updateProject, setHasUnsavedChanges, addRecent, showToast, createProject, addToOpen, setActiveDiagram, navigate]);
+  }, [currentProject, model, updateProject, setHasUnsavedChanges, addRecent, showToast, createProject, addToOpen, setActiveDiagram, navigate]);
 
   const handleOpenProject = React.useCallback((id: string) => {
     navigate(`/canvas/${id}`);
@@ -139,9 +160,12 @@ const Workspace: React.FC = () => {
       );
     }
 
-    // Default to editor view
+    // Default to editor view - pass unified model and engine methods
     return editorMode === 'flow' ? (
       <WorkspaceFlowView
+        model={model}
+        setModel={setModel}
+        engineMethods={engineMethods}
         code={code}
         editorMode={editorMode}
         setEditorMode={setEditorMode}
@@ -150,6 +174,9 @@ const Workspace: React.FC = () => {
       <WorkspaceEditorView
         code={code}
         setCode={setCode}
+        model={model}
+        setModel={setModel}
+        engineMethods={engineMethods}
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         editorMode={editorMode}

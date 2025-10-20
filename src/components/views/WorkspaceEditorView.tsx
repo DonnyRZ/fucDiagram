@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../../hooks/useApp';
 import { useNavigation } from '../../context/NavigationContext';
@@ -6,6 +6,8 @@ import { useMermaidRenderer } from '../../hooks/useMermaidRenderer';
 import { useToast } from '../../context/ToastContext';
 import { useAutoSave } from '../../hooks/useAutoSave';
 import { Tab } from '../../types';
+import { DiagramModel } from '../../types/diagramModel';
+import { UnifiedMermaidConverter } from '../../services/UnifiedMermaidConverter';
 import AdvancedResizablePane from '../layout/AdvancedResizablePane';
 import EnhancedEditorPanel from '../editor/EnhancedEditorPanel';
 import ConfigPanel from '../editor/ConfigPanel';
@@ -15,6 +17,9 @@ import '../../pages/Workspace.css';
 interface WorkspaceEditorViewProps {
   code: string;
   setCode: React.Dispatch<React.SetStateAction<string>>;
+  model: DiagramModel;
+  setModel: (model: DiagramModel) => void;
+  engineMethods: any;
   activeTab: 'code' | 'config';
   setActiveTab: React.Dispatch<React.SetStateAction<'code' | 'config'>>;
   editorMode: 'mermaid' | 'flow';
@@ -25,6 +30,9 @@ interface WorkspaceEditorViewProps {
 const WorkspaceEditorView: React.FC<WorkspaceEditorViewProps> = ({
   code,
   setCode,
+  model,
+  setModel,
+  engineMethods,
   activeTab,
   setActiveTab,
   editorMode,
@@ -49,7 +57,7 @@ const WorkspaceEditorView: React.FC<WorkspaceEditorViewProps> = ({
   const { isRendering } = useMermaidRenderer();
   const { showToast } = useToast();
   
-  const [mermaidConfig, setMermaidConfig] = useState<any>({}); // Default Mermaid config
+  const [mermaidConfig, setMermaidConfig] = useState<any>({});
 
   const editorTabs: Tab[] = [
     {
@@ -62,13 +70,28 @@ const WorkspaceEditorView: React.FC<WorkspaceEditorViewProps> = ({
     }
   ];
 
+  // Bidirectional: When code changes, update the model
   const handleCodeChange = React.useCallback((newCode: string) => {
     setCode(newCode);
-    
-    // Check if the code differs from the pristine version to determine if there are unsaved changes
+
+    (async () => {
+      try {
+        const newModel = await UnifiedMermaidConverter.mermaidToModel(newCode);
+        setModel(newModel);
+      } catch (error) {
+        console.error('Error converting code to model:', error);
+      }
+    })();
+
     const hasChanges = newCode.trim() !== (currentProject?.mermaidCode || '').trim();
     setHasUnsavedChanges(hasChanges);
-  }, [currentProject?.mermaidCode, setHasUnsavedChanges]);
+  }, [currentProject?.mermaidCode, setModel, setHasUnsavedChanges]);
+
+  // Bidirectional: When model changes, update the code ONLY when necessary
+  // useEffect(() => {
+  //   const updatedCode = UnifiedMermaidConverter.modelToMermaid(model);
+  //   setCode(updatedCode);
+  // }, [model, setCode]);
 
   const handleConfigChange = React.useCallback((newConfig: any) => {
     setMermaidConfig(newConfig);
@@ -91,7 +114,6 @@ const WorkspaceEditorView: React.FC<WorkspaceEditorViewProps> = ({
     code,
     React.useCallback((content: string) => {
       if (currentProject && hasUnsavedChanges) {
-        // Update the project with the current code
         updateProject({
           ...currentProject,
           mermaidCode: content,
@@ -101,7 +123,7 @@ const WorkspaceEditorView: React.FC<WorkspaceEditorViewProps> = ({
         showToast('Diagram auto-saved', 'info');
       }
     }, [currentProject, hasUnsavedChanges, updateProject, setHasUnsavedChanges, showToast]),
-    30000 // Auto-save every 30 seconds
+    30000
   );
 
   return (

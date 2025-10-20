@@ -7,16 +7,16 @@ interface ResizableNodeData {
   [key: string]: any;
 }
 
-const ResizableNode: React.FC<NodeProps<ResizableNodeData>> = ({ 
+const ResizableNode: React.FC<NodeProps<{ label: string }>> = ({ 
   id, 
   data, 
-  xPos, 
-  yPos,
+  position,
   selected,
-  dragging,
   width = 100,
   height = 50
 }) => {
+  const xPos = position.x;
+  const yPos = position.y;
   const { setNodes } = useReactFlow();
   const store = useStoreApi();
   const [isResizing, setIsResizing] = useState(false);
